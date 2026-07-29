@@ -49,7 +49,7 @@
         </div>
       </div>
 
-      <!-- MENU NAVEGAÇÃO -->
+      <!-- MENU NAVEGAÇÃO DESKTOP -->
       <nav class="p-4 space-y-1">
         <button onclick="navegarAdmin('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl bg-dfitas-vinho/10 text-dfitas-vinho transition">
           <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
@@ -64,7 +64,7 @@
           <i data-lucide="clock" class="w-5 h-5"></i> Registros de Ponto
         </button>
         <button onclick="navegarAdmin('solicitacoes')" id="nav-solicitacoes" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
-          <i data-lucide="file-check-2" class="w-5 h-5"></i> Solicitações <span class="ml-auto bg-dfitas-rosa text-white text-[10px] px-2 py-0.5 rounded-full" id="badgeSolicitacoes">0</span>
+          <i data-lucide="file-check-2" class="w-5 h-5"></i> Solicitações <span class="ml-auto bg-dfitas-rosa text-white text-[10px] px-2 py-0.5 rounded-full badge-solicitacoes" id="badgeSolicitacoes">0</span>
         </button>
       </nav>
     </div>
@@ -85,6 +85,40 @@
       </button>
     </div>
   </aside>
+
+  <!-- MENU NAVEGAÇÃO MOBILE (BOTTOM NAV) -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-dfitas-border md:hidden flex justify-around items-center h-16 px-1 z-50 shadow-lg">
+    <button onclick="navegarAdmin('dashboard')" id="nav-mob-dashboard" class="nav-btn-mob flex flex-col items-center justify-center text-dfitas-vinho text-[10px] font-semibold w-full py-1.5 transition">
+      <i data-lucide="layout-dashboard" class="w-5 h-5 mb-0.5"></i>
+      <span>Dashboard</span>
+    </button>
+    
+    <button onclick="navegarAdmin('funcionarios')" id="nav-mob-funcionarios" class="nav-btn-mob flex flex-col items-center justify-center text-slate-500 text-[10px] font-medium w-full py-1.5 transition">
+      <i data-lucide="users" class="w-5 h-5 mb-0.5"></i>
+      <span>Equipe</span>
+    </button>
+    
+    <button onclick="navegarAdmin('escalas')" id="nav-mob-escalas" class="nav-btn-mob flex flex-col items-center justify-center text-slate-500 text-[10px] font-medium w-full py-1.5 transition">
+      <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
+      <span>Escalas</span>
+    </button>
+    
+    <button onclick="navegarAdmin('registros')" id="nav-mob-registros" class="nav-btn-mob flex flex-col items-center justify-center text-slate-500 text-[10px] font-medium w-full py-1.5 transition">
+      <i data-lucide="clock" class="w-5 h-5 mb-0.5"></i>
+      <span>Pontos</span>
+    </button>
+    
+    <button onclick="navegarAdmin('solicitacoes')" id="nav-mob-solicitacoes" class="nav-btn-mob flex flex-col items-center justify-center text-slate-500 text-[10px] font-medium w-full py-1.5 transition relative">
+      <i data-lucide="file-check-2" class="w-5 h-5 mb-0.5"></i>
+      <span>Pedidos</span>
+      <span class="absolute top-1 right-3 bg-dfitas-rosa text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-bold badge-solicitacoes" id="badgeSolicitacoesMob">0</span>
+    </button>
+    
+    <button onclick="fazerLogout()" class="flex flex-col items-center justify-center text-rose-500 text-[10px] font-medium w-full py-1.5 transition">
+      <i data-lucide="log-out" class="w-5 h-5 mb-0.5"></i>
+      <span>Sair</span>
+    </button>
+  </nav>
 
   <!-- CONTEÚDO PRINCIPAL -->
   <main class="flex-1 flex flex-col min-w-0">
@@ -295,21 +329,39 @@
       }
     };
 
-    // NAVEGAÇÃO SPA ADMIN
+    // NAVEGAÇÃO SPA ADMIN (COM SUPORTE AO MOBILE)
     window.navegarAdmin = function(abaId) {
+      // Esconde todas as abas
       document.querySelectorAll('.aba-admin').forEach(el => el.classList.add('hidden'));
+
+      // Reseta botões Desktop
       document.querySelectorAll('.nav-btn').forEach(el => {
         el.classList.remove('bg-dfitas-vinho/10', 'text-dfitas-vinho');
         el.classList.add('text-slate-600');
       });
 
+      // Reseta botões Mobile
+      document.querySelectorAll('.nav-btn-mob').forEach(el => {
+        el.classList.remove('text-dfitas-vinho', 'font-semibold');
+        el.classList.add('text-slate-500', 'font-medium');
+      });
+
+      // Ativa aba
       const aba = document.getElementById(`aba-${abaId}`);
       if (aba) aba.classList.remove('hidden');
 
+      // Ativa botão Desktop
       const btnAtivo = document.getElementById(`nav-${abaId}`);
       if (btnAtivo) {
         btnAtivo.classList.add('bg-dfitas-vinho/10', 'text-dfitas-vinho');
         btnAtivo.classList.remove('text-slate-600');
+      }
+
+      // Ativa botão Mobile
+      const btnMobAtivo = document.getElementById(`nav-mob-${abaId}`);
+      if (btnMobAtivo) {
+        btnMobAtivo.classList.add('text-dfitas-vinho', 'font-semibold');
+        btnMobAtivo.classList.remove('text-slate-500', 'font-medium');
       }
 
       const titulos = {
@@ -375,9 +427,12 @@
 
       onSnapshot(q, (snapshot) => {
         const tabela = document.getElementById("tabelaSolicitacoesAdmin");
-        const badge = document.getElementById("badgeSolicitacoes");
+        const badgeDesktop = document.getElementById("badgeSolicitacoes");
+        const badgeMob = document.getElementById("badgeSolicitacoesMob");
+        
         tabela.innerHTML = "";
-        badge.innerText = snapshot.size;
+        if (badgeDesktop) badgeDesktop.innerText = snapshot.size;
+        if (badgeMob) badgeMob.innerText = snapshot.size;
 
         if (snapshot.empty) {
           tabela.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Nenhuma solicitação no momento.</td></tr>`;
