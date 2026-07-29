@@ -24,7 +24,7 @@
   </script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-dfitas-bg text-slate-800 font-sans antialiased min-h-screen flex items-center justify-center p-4 select-none">
+<body class="bg-dfitas-bg text-slate-800 font-sans antialiased min-h-screen flex items-center justify-center p-4">
 
   <div class="w-full max-w-md bg-white rounded-3xl border border-dfitas-border shadow-2xl p-6 sm:p-8 space-y-6">
     
@@ -38,14 +38,14 @@
     </div>
 
     <!-- MENSAGEM DE ERRO -->
-    <div id="erroLogin" class="hidden bg-rose-50 border border-rose-200 text-rose-600 text-xs p-3.5 rounded-2xl text-center font-medium animate-pulse"></div>
+    <div id="erroLogin" class="hidden bg-rose-50 border border-rose-200 text-rose-600 text-xs p-3.5 rounded-2xl text-center font-medium"></div>
 
     <!-- FORMULÁRIO -->
-    <form id="formLogin" onsubmit="return false;" class="space-y-4">
+    <form id="formLogin" class="space-y-4">
       <div>
         <label class="block text-xs font-semibold text-slate-600 mb-1.5">Usuário ou E-mail</label>
         <div class="relative">
-          <input type="text" id="usuario" required placeholder="Ex: admin ou maria" autocomplete="username" class="w-full p-3.5 pl-10 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho lowercase transition-all" />
+          <input type="text" id="usuario" required placeholder="Ex: admin ou dada@davi.com" class="w-full p-3.5 pl-10 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho lowercase" />
           <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-4"></i>
         </div>
       </div>
@@ -53,12 +53,12 @@
       <div>
         <label class="block text-xs font-semibold text-slate-600 mb-1.5">Senha</label>
         <div class="relative">
-          <input type="password" id="senha" required placeholder="••••••••" autocomplete="current-password" class="w-full p-3.5 pl-10 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho transition-all" />
+          <input type="password" id="senha" required placeholder="••••••••" class="w-full p-3.5 pl-10 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
           <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-4"></i>
         </div>
       </div>
 
-      <button type="button" id="btnEntrar" class="w-full py-4 bg-dfitas-vinho active:scale-95 hover:bg-dfitas-vinho/90 text-white font-bold text-sm rounded-xl shadow-lg shadow-dfitas-vinho/30 transition flex items-center justify-center gap-2 touch-manipulation">
+      <button type="submit" id="btnEntrar" class="w-full py-4 bg-dfitas-vinho hover:bg-dfitas-vinho/90 text-white font-bold text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2">
         <i data-lucide="log-in" class="w-4 h-4"></i> Entrar no Sistema
       </button>
     </form>
@@ -88,56 +88,44 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    const form = document.getElementById('formLogin');
     const btnEntrar = document.getElementById('btnEntrar');
     const erroDiv = document.getElementById('erroLogin');
 
-    async function realizarLogin() {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Impede o recarregamento automático da página no celular
       erroDiv.classList.add('hidden');
       
       const usuarioInput = document.getElementById('usuario').value.trim().toLowerCase();
       const senha = document.getElementById('senha').value;
 
-      if(!usuarioInput || !senha) {
-        erroDiv.classList.remove('hidden');
-        erroDiv.innerText = "Preencha o usuário e a senha.";
-        return;
-      }
-
       btnEntrar.disabled = true;
-      btnEntrar.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Entrando...`;
-      lucide.createIcons();
+      btnEntrar.innerHTML = `Entrando...`;
 
-      // Mapeia usuário simples para o e-mail cadastrado (ex: dada -> dada@davi.com ou admin -> admin@dfitas.com)
-      let emailFinal = usuarioInput;
-      if (!usuarioInput.includes('@')) {
-        emailFinal = `${usuarioInput}@dfitas.com`;
-      }
+      let emailFinal = usuarioInput.includes('@') ? usuarioInput : `${usuarioInput}@dfitas.com`;
 
       try {
-        // 1. Autentica no Firebase
         const userCredential = await signInWithEmailAndPassword(auth, emailFinal, senha);
         const user = userCredential.user;
 
-        // 2. Verifica a função (role) do usuário
-        let role = 'funcionario';
+        // Verifica a função no Firestore
+        let destino = 'funcionario.html';
         try {
           const userDoc = await getDoc(doc(db, "usuarios", user.uid));
-          if (userDoc.exists() && userDoc.data().role) {
-            role = userDoc.data().role;
+          if (userDoc.exists() && userDoc.data().role === 'admin') {
+            destino = 'admin.html';
+          } else if (usuarioInput.includes('admin') || usuarioInput.includes('gerencia')) {
+            destino = 'admin.html';
           }
         } catch (dbErr) {
-          console.warn("Seguindo regra de fallback para cargo.");
+          if (usuarioInput.includes('admin')) destino = 'admin.html';
         }
 
-        // 3. Redirecionamento de acordo com o papel do usuário
-        if (role === 'admin' || usuarioInput.includes('admin') || usuarioInput.includes('gerencia')) {
-          window.location.replace('admin.html');
-        } else {
-          window.location.replace('funcionario.html');
-        }
+        // Redireciona de forma segura
+        window.location.href = destino;
 
       } catch (error) {
-        console.error("Erro no login:", error);
+        console.error("Erro:", error);
         btnEntrar.disabled = false;
         btnEntrar.innerHTML = `<i data-lucide="log-in" class="w-4 h-4"></i> Entrar no Sistema`;
         lucide.createIcons();
@@ -145,20 +133,9 @@
         erroDiv.classList.remove('hidden');
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
           erroDiv.innerText = "Usuário ou senha incorretos.";
-        } else if (error.code === 'auth/unauthorized-domain') {
-          erroDiv.innerText = "Domínio não autorizado no Firebase Console.";
         } else {
           erroDiv.innerText = "Erro ao conectar. Tente novamente.";
         }
-      }
-    }
-
-    // Ação do Botão e Suporte ao Teclado do Celular (Enter)
-    btnEntrar.addEventListener('click', realizarLogin);
-    document.getElementById('formLogin').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        realizarLogin();
       }
     });
 
