@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DFitas - Autenticação</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dfitas: {
+              vinho: '#8A102C',
+              rosa: '#D94C79',
+              bg: '#F8FAFC',
+              card: '#FFFFFF',
+              border: '#E2E8F0',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-dfitas-bg text-slate-800 font-sans antialiased min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-md bg-white rounded-2xl border border-dfitas-border shadow-xl p-8 space-y-6">
+    
+    <!-- BRANDING -->
+    <div class="text-center space-y-2">
+      <div class="w-16 h-16 bg-dfitas-vinho rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto shadow-md">
+        DF
+      </div>
+      <h1 class="text-2xl font-bold text-dfitas-vinho">DFitas</h1>
+      <p class="text-xs text-slate-500">Acesse o sistema com seu e-mail e senha</p>
+    </div>
+
+    <!-- MENSAGEM DE ERRO/ALERTA -->
+    <div id="erroLogin" class="hidden bg-rose-50 border border-rose-200 text-rose-600 text-xs p-3 rounded-xl text-center font-medium"></div>
+
+    <!-- FORMULÁRIO -->
+    <form id="formLogin" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">E-mail</label>
+        <div class="relative">
+          <input type="email" id="email" required placeholder="admin@dfitas.com" class="w-full p-3 pl-10 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
+          <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3 top-3.5"></i>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Senha</label>
+        <div class="relative">
+          <input type="password" id="senha" required placeholder="••••••••" class="w-full p-3 pl-10 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
+          <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-3.5"></i>
+        </div>
+      </div>
+
+      <button type="submit" id="btnEntrar" class="w-full py-3.5 bg-dfitas-vinho hover:bg-dfitas-vinho/90 text-white font-bold text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+        <i data-lucide="log-in" class="w-4 h-4"></i> Acessar Painel
+      </button>
+    </form>
+
+    <div class="text-center pt-2">
+      <span class="text-[11px] text-slate-400">DFitas Gerenciamento &copy; 2026</span>
+    </div>
+
+  </div>
+
+  <!-- INTEGRANDO SDK FIREBASE AUTH & FIRESTORE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Suas credenciais reais do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyB96jQgvX8nvBKcQGjgIHYzVCUkaFl_n_s",
+      authDomain: "dfitas-gerenciamento.firebaseapp.com",
+      projectId: "dfitas-gerenciamento",
+      storageBucket: "dfitas-gerenciamento.firebasestorage.app",
+      messagingSenderId: "699981689369",
+      appId: "1:699981689369:web:60348dfa2ec7fffedf3088"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById('formLogin');
+    const erroDiv = document.getElementById('erroLogin');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      erroDiv.classList.add('hidden');
+
+      const email = document.getElementById('email').value.trim();
+      const senha = document.getElementById('senha').value;
+
+      try {
+        // 1. Autentica no Firebase Auth
+        const userCredential = await signInWithEmailAndPassword(auth, email, senha);
+        const user = userCredential.user;
+
+        // 2. Busca perfil na coleção "usuarios" para direcionamento
+        const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+
+        if (userDoc.exists() && userDoc.data().role === 'admin') {
+          window.location.href = 'admin.html';
+        } else if (email.includes('admin')) {
+          // Fallback para e-mails que contenham admin
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'index.html';
+        }
+
+      } catch (error) {
+        erroDiv.classList.remove('hidden');
+        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+          erroDiv.innerText = "E-mail ou senha incorretos.";
+        } else {
+          erroDiv.innerText = "Erro ao conectar. Verifique as credenciais no Firebase.";
+        }
+      }
+    });
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>

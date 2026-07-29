@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DFitas - Painel Administrativo</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dfitas: {
+              vinho: '#8A102C',
+              rosa: '#D94C79',
+              bg: '#F8FAFC',
+              card: '#FFFFFF',
+              border: '#E2E8F0',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- jsPDF & AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.min.js"></script>
+</head>
+<body class="bg-dfitas-bg text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row pb-16 md:pb-0">
+
+  <!-- SIDEBAR DESKTOP -->
+  <aside class="w-64 bg-white border-r border-dfitas-border flex flex-col justify-between hidden md:flex min-h-screen">
+    <div>
+      <div class="p-6 border-b border-dfitas-border flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-dfitas-vinho flex items-center justify-center text-white font-bold text-lg shadow-md">
+            DF
+          </div>
+          <div>
+            <h1 class="font-bold text-dfitas-vinho text-lg leading-none">DFitas</h1>
+            <span class="text-xs text-slate-500">Gestão & Controle</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MENU NAVEGAÇÃO -->
+      <nav class="p-4 space-y-1">
+        <button onclick="navegarAdmin('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl bg-dfitas-vinho/10 text-dfitas-vinho transition">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+        </button>
+        <button onclick="navegarAdmin('funcionarios')" id="nav-funcionarios" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
+          <i data-lucide="users" class="w-5 h-5"></i> Funcionários
+        </button>
+        <button onclick="navegarAdmin('escalas')" id="nav-escalas" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
+          <i data-lucide="calendar" class="w-5 h-5"></i> Escalas & Turnos
+        </button>
+        <button onclick="navegarAdmin('registros')" id="nav-registros" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
+          <i data-lucide="clock" class="w-5 h-5"></i> Registros de Ponto
+        </button>
+        <button onclick="navegarAdmin('solicitacoes')" id="nav-solicitacoes" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
+          <i data-lucide="file-check-2" class="w-5 h-5"></i> Solicitações <span class="ml-auto bg-dfitas-rosa text-white text-[10px] px-2 py-0.5 rounded-full" id="badgeSolicitacoes">0</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- USUÁRIO ADMIN & LOGOUT -->
+    <div class="p-4 border-t border-dfitas-border flex items-center justify-between">
+      <div class="flex items-center gap-3 overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0 flex items-center justify-center font-bold text-slate-600">
+          AD
+        </div>
+        <div class="overflow-hidden">
+          <p class="text-sm font-bold text-slate-800 truncate" id="adminNome">Administrador</p>
+          <p class="text-xs text-slate-500 truncate" id="adminEmail">admin@dfitas.com</p>
+        </div>
+      </div>
+      <button onclick="fazerLogout()" title="Sair do sistema" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
+        <i data-lucide="log-out" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-1 flex flex-col min-w-0">
+    
+    <!-- HEADER -->
+    <header class="h-16 bg-white border-b border-dfitas-border px-6 flex items-center justify-between">
+      <h2 class="text-lg font-bold text-slate-800" id="tituloPaginaAdmin">Dashboard Overview</h2>
+
+      <button onclick="gerarRelatorioPDF()" class="px-4 py-2 bg-dfitas-vinho hover:bg-dfitas-vinho/90 text-white font-bold text-sm rounded-xl shadow-md transition flex items-center gap-2">
+        <i data-lucide="download" class="w-4 h-4"></i> Exportar Relatório (PDF)
+      </button>
+    </header>
+
+    <div class="p-6 space-y-6 overflow-y-auto">
+
+      <!-- ================= ABA 1: DASHBOARD ================= -->
+      <section id="aba-dashboard" class="aba-admin space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500 font-medium uppercase">Registros Hoje</p>
+              <h3 class="text-2xl font-bold text-slate-800 mt-1" id="totalFuncionarios">0</h3>
+              <span class="text-xs text-emerald-600 font-medium">Atividade sincronizada</span>
+            </div>
+            <div class="p-3 bg-dfitas-vinho/10 text-dfitas-vinho rounded-xl"><i data-lucide="users"></i></div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500 font-medium uppercase">Em Trabalho Agora</p>
+              <h3 class="text-2xl font-bold text-slate-800 mt-1" id="emTrabalho">0</h3>
+              <span class="text-xs text-slate-400">Ativos em tempo real</span>
+            </div>
+            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="user-check"></i></div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500 font-medium uppercase">Status Firestore</p>
+              <h3 class="text-lg font-bold text-emerald-600 mt-1">Conectado</h3>
+              <span class="text-xs text-slate-400">dfitas-gerenciamento</span>
+            </div>
+            <div class="p-3 bg-slate-100 text-slate-600 rounded-xl"><i data-lucide="database"></i></div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500 font-medium uppercase">Banco de Horas Geral</p>
+              <h3 class="text-2xl font-bold text-emerald-600 mt-1">+00:00</h3>
+              <span class="text-xs text-emerald-600 font-medium">Saldo do mês</span>
+            </div>
+            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="wallet"></i></div>
+          </div>
+        </div>
+
+        <!-- TABELA EM TEMPO REAL -->
+        <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-dfitas-border flex justify-between items-center">
+            <div>
+              <h3 class="text-base font-bold text-slate-800">Registros do Dia em Tempo Real</h3>
+              <p class="text-xs text-slate-500">Batimentos gravados pelos funcionários via Firebase</p>
+            </div>
+            <span class="flex items-center gap-2 text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Firebase Sync
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-dfitas-border text-xs font-semibold text-slate-500 uppercase">
+                  <th class="p-4">Funcionário</th>
+                  <th class="p-4">Data</th>
+                  <th class="p-4">Entrada</th>
+                  <th class="p-4">Saída Almoço</th>
+                  <th class="p-4">Retorno Almoço</th>
+                  <th class="p-4">Saída</th>
+                  <th class="p-4">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaPontosLive" class="divide-y divide-slate-100 text-sm">
+                <tr><td colspan="7" class="p-4 text-center text-slate-400">Aguardando dados...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ABA 2: FUNCIONÁRIOS ================= -->
+      <section id="aba-funcionarios" class="aba-admin hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
+          <h3 class="text-base font-bold text-slate-800 mb-4">Gestão de Colaboradores</h3>
+          <p class="text-xs text-slate-500 mb-6">Cadastros e contas ativas no sistema.</p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-dfitas-border text-xs font-semibold text-slate-500 uppercase">
+                  <th class="p-4">Nome</th>
+                  <th class="p-4">E-mail</th>
+                  <th class="p-4">Cargo</th>
+                  <th class="p-4">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaFuncionarios" class="divide-y divide-slate-100 text-sm">
+                <tr>
+                  <td class="p-4 font-bold text-slate-800">Equipe DFitas</td>
+                  <td class="p-4 text-slate-600">colaborador@dfitas.com</td>
+                  <td class="p-4 text-slate-600">Operacional / Vendas</td>
+                  <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">Ativo</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ABA 3: ESCALAS & TURNOS ================= -->
+      <section id="aba-escalas" class="aba-admin hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
+          <h3 class="text-base font-bold text-slate-800 mb-2">Escalas de Trabalho</h3>
+          <p class="text-xs text-slate-500 mb-6">Horários previstos por equipe.</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <h4 class="font-bold text-slate-800 text-sm">Comercial</h4>
+              <p class="text-xs text-slate-500 mt-1">07:00 às 16:00 (Segunda a Sexta)</p>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <h4 class="font-bold text-slate-800 text-sm">Operacional</h4>
+              <p class="text-xs text-slate-500 mt-1">08:00 às 17:00 (Segunda a Sexta)</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ABA 4: REGISTROS DE PONTO ================= -->
+      <section id="aba-registros" class="aba-admin hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
+          <h3 class="text-base font-bold text-slate-800 mb-2">Histórico de Espelhos de Ponto</h3>
+          <p class="text-xs text-slate-500 mb-4">Acompanhamento dos registros enviados pelo aplicativo.</p>
+          <div id="historicoGeralPonto" class="text-sm text-slate-600">
+            Sincronizado diretamente com a coleção <code>registros_ponto</code>.
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ABA 5: SOLICITAÇÕES ================= -->
+      <section id="aba-solicitacoes" class="aba-admin hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
+          <h3 class="text-base font-bold text-slate-800 mb-4">Solicitações dos Colaboradores</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-dfitas-border text-xs font-semibold text-slate-500 uppercase">
+                  <th class="p-4">Funcionário</th>
+                  <th class="p-4">Tipo</th>
+                  <th class="p-4">Data</th>
+                  <th class="p-4">Justificativa</th>
+                  <th class="p-4">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaSolicitacoesAdmin" class="divide-y divide-slate-100 text-sm">
+                <tr><td colspan="5" class="p-4 text-center text-slate-400">Buscando solicitações...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- FIREBASE AUTH & FIRESTORE INTEGRATED SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Suas credenciais reais do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyB96jQgvX8nvBKcQGjgIHYzVCUkaFl_n_s",
+      authDomain: "dfitas-gerenciamento.firebaseapp.com",
+      projectId: "dfitas-gerenciamento",
+      storageBucket: "dfitas-gerenciamento.firebasestorage.app",
+      messagingSenderId: "699981689369",
+      appId: "1:699981689369:web:60348dfa2ec7fffedf3088"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let dadosPontosPDF = [];
+
+    // PROTEÇÃO DE ROTA (Garante que só logados fiquem aqui)
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        document.getElementById("adminEmail").innerText = user.email || "admin@dfitas.com";
+      }
+    });
+
+    window.fazerLogout = async function() {
+      await signOut(auth);
+      window.location.href = "login.html";
+    };
+
+    // NAVEGAÇÃO SPA ADMIN
+    window.navegarAdmin = function(abaId) {
+      document.querySelectorAll('.aba-admin').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(el => {
+        el.classList.remove('bg-dfitas-vinho/10', 'text-dfitas-vinho');
+        el.classList.add('text-slate-600');
+      });
+
+      document.getElementById(`aba-${abaId}`).classList.remove('hidden');
+      const btnAtivo = document.getElementById(`nav-${abaId}`);
+      if(btnAtivo) {
+        btnAtivo.classList.add('bg-dfitas-vinho/10', 'text-dfitas-vinho');
+        btnAtivo.classList.remove('text-slate-600');
+      }
+
+      const titulos = {
+        dashboard: 'Dashboard Overview',
+        funcionarios: 'Gestão de Funcionários',
+        escalas: 'Escalas e Turnos',
+        registros: 'Espelhos de Ponto',
+        solicitacoes: 'Aprovação de Solicitações'
+      };
+      document.getElementById('tituloPaginaAdmin').innerText = titulos[abaId] || 'Administração';
+    };
+
+    // ESCUTAR REGISTROS EM TEMPO REAL NO FIREBASE
+    function escutarPontosLive() {
+      const q = query(collection(db, "registros_ponto"));
+      
+      onSnapshot(q, (snapshot) => {
+        const tabela = document.getElementById("tabelaPontosLive");
+        tabela.innerHTML = "";
+        dadosPontosPDF = [];
+        let emTrabalhoCount = 0;
+
+        if (snapshot.empty) {
+          tabela.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Nenhum batimento registrado hoje.</td></tr>`;
+          document.getElementById("totalFuncionarios").innerText = "0";
+          document.getElementById("emTrabalho").innerText = "0";
+          return;
+        }
+
+        snapshot.forEach((doc) => {
+          const item = doc.data();
+          dadosPontosPDF.push(item);
+          if (item.status === 'Em trabalho') emTrabalhoCount++;
+
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50/80 transition";
+          tr.innerHTML = `
+            <td class="p-4 font-bold text-slate-800">${item.nome || 'Funcionário'}</td>
+            <td class="p-4 text-slate-600">${item.data || '--'}</td>
+            <td class="p-4 text-slate-600 font-medium">${item.entrada || '--:--'}</td>
+            <td class="p-4 text-slate-600">${item.almoco_inicio || '--:--'}</td>
+            <td class="p-4 text-slate-600">${item.almoco_fim || '--:--'}</td>
+            <td class="p-4 text-slate-600 font-medium">${item.saida || '--:--'}</td>
+            <td class="p-4">
+              <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${item.status === 'Em trabalho' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}">
+                ${item.status || 'Finalizado'}
+              </span>
+            </td>
+          `;
+          tabela.appendChild(tr);
+        });
+
+        document.getElementById("totalFuncionarios").innerText = snapshot.size;
+        document.getElementById("emTrabalho").innerText = emTrabalhoCount;
+      });
+    }
+
+    // ESCUTAR SOLICITAÇÕES
+    function escutarSolicitacoes() {
+      const q = query(collection(db, "solicitacoes"));
+
+      onSnapshot(q, (snapshot) => {
+        const tabela = document.getElementById("tabelaSolicitacoesAdmin");
+        const badge = document.getElementById("badgeSolicitacoes");
+        tabela.innerHTML = "";
+        badge.innerText = snapshot.size;
+
+        if (snapshot.empty) {
+          tabela.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Nenhuma solicitação no momento.</td></tr>`;
+          return;
+        }
+
+        snapshot.forEach((docSnap) => {
+          const item = docSnap.data();
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50 transition";
+          tr.innerHTML = `
+            <td class="p-4 font-bold text-slate-800">${item.nome || 'Funcionário'}</td>
+            <td class="p-4 text-slate-600">${item.tipo || 'Ajuste'}</td>
+            <td class="p-4 text-slate-600">${item.data || '--'}</td>
+            <td class="p-4 text-slate-600 text-xs">${item.obs || '-'}</td>
+            <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-700">${item.status || 'Pendente'}</span></td>
+          `;
+          tabela.appendChild(tr);
+        });
+      });
+    }
+
+    // GERAR RELATÓRIO PDF
+    window.gerarRelatorioPDF = function () {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFillColor(138, 16, 44);
+      doc.rect(0, 0, 210, 25, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text("DFitas | Relatório de Registro de Ponto", 14, 16);
+
+      const dataEmissao = new Date().toLocaleDateString('pt-BR');
+      doc.setTextColor(50, 50, 50);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Emissão: ${dataEmissao}`, 14, 33);
+
+      const colunas = ["Funcionário", "Data", "Entrada", "S. Almoço", "R. Almoço", "Saída", "Status"];
+      const linhas = dadosPontosPDF.map(item => [
+        item.nome || '',
+        item.data || '',
+        item.entrada || '--:--',
+        item.almoco_inicio || '--:--',
+        item.almoco_fim || '--:--',
+        item.saida || '--:--',
+        item.status || 'Finalizado'
+      ]);
+
+      doc.autoTable({
+        startY: 40,
+        head: [colunas],
+        body: linhas,
+        headStyles: { fillColor: [138, 16, 44] }
+      });
+
+      doc.save(`Relatorio_DFitas_${dataEmissao.replace(/\//g, '-')}.pdf`);
+    };
+
+    escutarPontosLive();
+    escutarSolicitacoes();
+    lucide.createIcons();
+  </script>
+</body>
+</html>

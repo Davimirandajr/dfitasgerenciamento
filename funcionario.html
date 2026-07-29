@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DFitas - Área do Colaborador</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dfitas: {
+              vinho: '#8A102C',
+              rosa: '#D94C79',
+              bg: '#F8FAFC',
+              card: '#FFFFFF',
+              border: '#E2E8F0',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- jsPDF & AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.min.js"></script>
+</head>
+<body class="bg-dfitas-bg text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row pb-16 md:pb-0">
+
+  <!-- SIDEBAR DESKTOP -->
+  <aside class="w-64 bg-white border-r border-dfitas-border flex flex-col justify-between hidden md:flex min-h-screen">
+    <div>
+      <div class="p-6 border-b border-dfitas-border flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-dfitas-vinho flex items-center justify-center text-white font-bold text-lg shadow-md">
+          DF
+        </div>
+        <div>
+          <h1 class="font-bold text-dfitas-vinho text-lg leading-none">DFitas</h1>
+          <span class="text-xs text-slate-500">Área do Colaborador</span>
+        </div>
+      </div>
+
+      <!-- MENU NAVEGAÇÃO -->
+      <nav class="p-4 space-y-1">
+        <button onclick="navegarPara('inicio')" id="nav-inicio" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl bg-dfitas-vinho/10 text-dfitas-vinho transition">
+          <i data-lucide="home" class="w-5 h-5"></i> Início
+        </button>
+        <button onclick="navegarPara('ponto')" id="nav-ponto" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
+          <i data-lucide="clock" class="w-5 h-5"></i> Meus Registros
+        </button>
+        <button onclick="navegarPara('escala')" id="nav-escala" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
+          <i data-lucide="calendar" class="w-5 h-5"></i> Minha Escala
+        </button>
+        <button onclick="navegarPara('solicitacoes')" id="nav-solicitacoes" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
+          <i data-lucide="file-check-2" class="w-5 h-5"></i> Solicitações
+        </button>
+      </nav>
+    </div>
+
+    <!-- USUÁRIO LOGADO & LOGOUT -->
+    <div class="p-4 border-t border-dfitas-border flex items-center justify-between">
+      <div class="flex items-center gap-3 overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-dfitas-rosa text-white font-bold flex-shrink-0 flex items-center justify-center shadow-sm">
+          FC
+        </div>
+        <div class="overflow-hidden">
+          <p class="text-sm font-bold text-slate-800 truncate" id="usuarioNome">Colaborador</p>
+          <p class="text-xs text-slate-500 truncate" id="usuarioEmail">email@dfitas.com</p>
+        </div>
+      </div>
+      <button onclick="fazerLogout()" title="Sair do sistema" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
+        <i data-lucide="log-out" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-1 flex flex-col min-w-0">
+    
+    <!-- HEADER -->
+    <header class="h-16 bg-white border-b border-dfitas-border px-6 flex items-center justify-between">
+      <h2 class="text-lg font-bold text-slate-800" id="tituloPagina">Início</h2>
+
+      <button onclick="baixarEspelhoPontoPDF()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center gap-2">
+        <i data-lucide="download" class="w-4 h-4"></i> Baixar Espelho de Ponto (PDF)
+      </button>
+    </header>
+
+    <div class="p-6 space-y-6 overflow-y-auto">
+
+      <!-- ================= ABA 1: INÍCIO ================= -->
+      <section id="aba-inicio" class="aba-conteudo space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500 font-medium uppercase">Horário Atual</p>
+              <h3 class="text-2xl font-bold text-dfitas-vinho mt-1" id="relogioDigital">00:00:00</h3>
+              <span class="text-xs text-slate-400" id="dataAtual">--/--/----</span>
+            </div>
+            <div class="p-3 bg-dfitas-vinho/10 text-dfitas-vinho rounded-xl"><i data-lucide="clock"></i></div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500 font-medium uppercase">Status Hoje</p>
+              <h3 class="text-lg font-bold text-slate-800 mt-1" id="statusPontoAtual">Aguardando</h3>
+              <span class="text-xs text-slate-400">Jornada diária</span>
+            </div>
+            <div class="p-3 bg-slate-100 text-slate-600 rounded-xl"><i data-lucide="activity"></i></div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500 font-medium uppercase">Banco de Horas</p>
+              <h3 class="text-2xl font-bold text-emerald-600 mt-1">+00:00</h3>
+              <span class="text-xs text-emerald-600 font-medium">Saldo Positivo</span>
+            </div>
+            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="wallet"></i></div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-xs text-slate-500 font-medium uppercase">Próximo Turno</p>
+              <h3 class="text-lg font-bold text-slate-800 mt-1">Amanhã</h3>
+              <span class="text-xs text-slate-400">07:00 às 16:00</span>
+            </div>
+            <div class="p-3 bg-dfitas-rosa/10 text-dfitas-rosa rounded-xl"><i data-lucide="calendar-days"></i></div>
+          </div>
+        </div>
+
+        <!-- BATIMENTO DE PONTO -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="bg-white p-6 rounded-2xl border border-dfitas-border shadow-sm flex flex-col justify-between">
+            <div>
+              <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <i data-lucide="fingerprint" class="w-5 h-5 text-dfitas-rosa"></i> Registrar Ponto
+              </h3>
+              
+              <div class="space-y-3">
+                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100">
+                  <span class="text-slate-600">Entrada</span>
+                  <span class="font-bold text-slate-800" id="txtEntrada">--:--</span>
+                </div>
+                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100">
+                  <span class="text-slate-600">Início Almoço</span>
+                  <span class="font-bold text-slate-800" id="txtAlmocoInicio">--:--</span>
+                </div>
+                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100">
+                  <span class="text-slate-600">Fim Almoço</span>
+                  <span class="font-bold text-slate-800" id="txtAlmocoFim">--:--</span>
+                </div>
+                <div class="flex justify-between items-center text-sm py-2">
+                  <span class="text-slate-600">Saída</span>
+                  <span class="font-bold text-slate-800" id="txtSaida">--:--</span>
+                </div>
+              </div>
+            </div>
+
+            <button id="btnBaterPonto" onclick="baterPonto()" class="w-full mt-6 py-3.5 bg-dfitas-vinho hover:bg-dfitas-vinho/90 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+              <i data-lucide="check-circle" class="w-5 h-5"></i> Batimento de Entrada
+            </button>
+          </div>
+
+          <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-dfitas-border shadow-sm flex flex-col justify-between">
+            <div>
+              <h3 class="text-base font-bold text-slate-800 mb-4">Escala da Semana</h3>
+              <div class="grid grid-cols-7 gap-2 text-center">
+                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">SEG</p><span class="text-[10px] font-bold text-slate-700 block mt-2">07:00 - 16:00</span></div>
+                <div class="p-2 rounded-xl bg-dfitas-vinho text-white shadow-md"><p class="text-xs font-bold text-dfitas-rosa">TER</p><span class="text-[10px] font-bold block mt-2">07:00 - 16:00</span></div>
+                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">QUA</p><span class="text-[10px] font-bold text-slate-700 block mt-2">07:00 - 16:00</span></div>
+                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">QUI</p><span class="text-[10px] font-bold text-slate-700 block mt-2">07:00 - 16:00</span></div>
+                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">SEX</p><span class="text-[10px] font-bold text-slate-700 block mt-2">07:00 - 16:00</span></div>
+                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50/50 opacity-60"><p class="text-xs font-bold text-slate-400">SÁB</p><span class="text-[10px] font-bold text-slate-400 block py-2">Folga</span></div>
+                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50/50 opacity-60"><p class="text-xs font-bold text-slate-400">DOM</p><span class="text-[10px] font-bold text-slate-400 block py-2">Folga</span></div>
+              </div>
+            </div>
+            <div class="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
+              <i data-lucide="info" class="w-5 h-5 text-dfitas-rosa"></i>
+              <p class="text-xs text-slate-600">Registros gravados em tempo real no banco de dados.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ABA 2: REGISTROS ================= -->
+      <section id="aba-ponto" class="aba-conteudo hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
+          <h3 class="text-base font-bold text-slate-800 mb-4">Seus Registros de Ponto</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-dfitas-border text-xs font-semibold text-slate-500 uppercase">
+                  <th class="p-4">Data</th>
+                  <th class="p-4">Entrada</th>
+                  <th class="p-4">Início Almoço</th>
+                  <th class="p-4">Fim Almoço</th>
+                  <th class="p-4">Saída</th>
+                  <th class="p-4">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaHistoricoPonto" class="divide-y divide-slate-100 text-sm">
+                <!-- Dinâmico -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ABA 3: ESCALA ================= -->
+      <section id="aba-escala" class="aba-conteudo hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
+          <h3 class="text-base font-bold text-slate-800 mb-2">Escala Geral do Mês</h3>
+          <p class="text-xs text-slate-500 mb-6">Confira seus turnos de trabalho atribuídos.</p>
+        </div>
+      </section>
+
+      <!-- ================= ABA 4: SOLICITAÇÕES ================= -->
+      <section id="aba-solicitacoes" class="aba-conteudo hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6 max-w-xl">
+          <h3 class="text-base font-bold text-slate-800 mb-4">Nova Solicitação de Ajuste / Férias</h3>
+          <form onsubmit="enviarSolicitacao(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo</label>
+              <select id="solTipo" class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho">
+                <option>Ajuste de Ponto</option>
+                <option>Solicitação de Férias</option>
+                <option>Abono com Atestado</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Data</label>
+              <input type="date" id="solData" required class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Justificativa</label>
+              <textarea id="solObs" rows="3" required placeholder="Escreva o motivo..." class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho"></textarea>
+            </div>
+            <button type="submit" class="w-full py-3 bg-dfitas-vinho text-white font-bold text-sm rounded-xl hover:bg-dfitas-vinho/90 transition">
+              Enviar Solicitação
+            </button>
+          </form>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- FIREBASE INTEGRADO COM O PROJETO DFITAS -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Suas credenciais reais do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyB96jQgvX8nvBKcQGjgIHYzVCUkaFl_n_s",
+      authDomain: "dfitas-gerenciamento.firebaseapp.com",
+      projectId: "dfitas-gerenciamento",
+      storageBucket: "dfitas-gerenciamento.firebasestorage.app",
+      messagingSenderId: "699981689369",
+      appId: "1:699981689369:web:60348dfa2ec7fffedf3088"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let usuarioAtual = null;
+    let registroHoje = { entrada: null, almoco_inicio: null, almoco_fim: null, saida: null };
+
+    // PROTEÇÃO DE ROTA
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        usuarioAtual = user;
+        document.getElementById("usuarioEmail").innerText = user.email;
+        document.getElementById("usuarioNome").innerText = user.email.split('@')[0];
+        carregarRegistroHoje();
+      }
+    });
+
+    window.fazerLogout = async function() {
+      await signOut(auth);
+      window.location.href = "login.html";
+    };
+
+    // NAVEGAÇÃO SPA
+    window.navegarPara = function(abaId) {
+      document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.remove('bg-dfitas-vinho/10', 'text-dfitas-vinho');
+        el.classList.add('text-slate-600');
+      });
+
+      document.getElementById(`aba-${abaId}`).classList.remove('hidden');
+      const btnAtivo = document.getElementById(`nav-${abaId}`);
+      if(btnAtivo) {
+        btnAtivo.classList.add('bg-dfitas-vinho/10', 'text-dfitas-vinho');
+        btnAtivo.classList.remove('text-slate-600');
+      }
+
+      const titulos = { inicio: 'Início', ponto: 'Meus Registros', escala: 'Minha Escala', solicitacoes: 'Solicitações' };
+      document.getElementById('tituloPagina').innerText = titulos[abaId] || 'Painel';
+    };
+
+    // RELÓGIO DIGITAL
+    setInterval(() => {
+      const agora = new Date();
+      document.getElementById("relogioDigital").innerText = agora.toLocaleTimeString('pt-BR');
+      document.getElementById("dataAtual").innerText = agora.toLocaleDateString('pt-BR');
+    }, 1000);
+
+    function getIdHoje() {
+      const dataHoje = new Date().toISOString().split('T')[0];
+      return `${usuarioAtual ? usuarioAtual.uid : 'temp'}_${dataHoje}`;
+    }
+
+    async function carregarRegistroHoje() {
+      if(!usuarioAtual) return;
+      const docSnap = await getDoc(doc(db, "registros_ponto", getIdHoje()));
+      if (docSnap.exists()) {
+        registroHoje = docSnap.data();
+        atualizarInterface();
+        renderizarTabelaPonto();
+      }
+    }
+
+    // BATIMENTO DE PONTO GRAVADO NO FIREBASE
+    window.baterPonto = async function() {
+      if (!usuarioAtual) return;
+
+      const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const dataAtual = new Date().toLocaleDateString('pt-BR');
+      let novoStatus = "Em trabalho";
+
+      if (!registroHoje.entrada) registroHoje.entrada = horaAtual;
+      else if (!registroHoje.almoco_inicio) { registroHoje.almoco_inicio = horaAtual; novoStatus = "Em Almoço"; }
+      else if (!registroHoje.almoco_fim) registroHoje.almoco_fim = horaAtual;
+      else if (!registroHoje.saida) { registroHoje.saida = horaAtual; novoStatus = "Finalizado"; }
+      else return;
+
+      await setDoc(doc(db, "registros_ponto", getIdHoje()), {
+        uid: usuarioAtual.uid,
+        nome: usuarioAtual.email.split('@')[0],
+        email: usuarioAtual.email,
+        data: dataAtual,
+        ...registroHoje,
+        status: novoStatus
+      }, { merge: true });
+
+      atualizarInterface();
+      renderizarTabelaPonto();
+    };
+
+    function atualizarInterface() {
+      document.getElementById("txtEntrada").innerText = registroHoje.entrada || "--:--";
+      document.getElementById("txtAlmocoInicio").innerText = registroHoje.almoco_inicio || "--:--";
+      document.getElementById("txtAlmocoFim").innerText = registroHoje.almoco_fim || "--:--";
+      document.getElementById("txtSaida").innerText = registroHoje.saida || "--:--";
+
+      const btn = document.getElementById("btnBaterPonto");
+      const statusText = document.getElementById("statusPontoAtual");
+
+      if (!registroHoje.entrada) { btn.innerText = "Batimento de Entrada"; statusText.innerText = "Aguardando Entrada"; }
+      else if (!registroHoje.almoco_inicio) { btn.innerText = "Saída para Almoço"; statusText.innerText = "Em Trabalho"; }
+      else if (!registroHoje.almoco_fim) { btn.innerText = "Retorno do Almoço"; statusText.innerText = "Em Almoço"; }
+      else if (!registroHoje.saida) { btn.innerText = "Batimento de Saída"; statusText.innerText = "Em Trabalho"; }
+      else { btn.innerText = "Jornada Concluída"; btn.disabled = true; btn.classList.add("opacity-50"); statusText.innerText = "Finalizado"; }
+    }
+
+    // ENVIAR SOLICITAÇÃO
+    window.enviarSolicitacao = async function(e) {
+      e.preventDefault();
+      const tipo = document.getElementById('solTipo').value;
+      const data = document.getElementById('solData').value;
+      const obs = document.getElementById('solObs').value;
+
+      await addDoc(collection(db, "solicitacoes"), {
+        uid: usuarioAtual.uid,
+        nome: usuarioAtual.email.split('@')[0],
+        email: usuarioAtual.email,
+        tipo, data, obs, status: "Pendente"
+      });
+
+      alert("Solicitação enviada com sucesso!");
+      e.target.reset();
+    };
+
+    function renderizarTabelaPonto() {
+      const tabela = document.getElementById('tabelaHistoricoPonto');
+      tabela.innerHTML = `
+        <tr>
+          <td class="p-4 font-bold text-slate-800">${new Date().toLocaleDateString('pt-BR')}</td>
+          <td class="p-4 text-slate-600">${registroHoje.entrada || '--:--'}</td>
+          <td class="p-4 text-slate-600">${registroHoje.almoco_inicio || '--:--'}</td>
+          <td class="p-4 text-slate-600">${registroHoje.almoco_fim || '--:--'}</td>
+          <td class="p-4 text-slate-600">${registroHoje.saida || '--:--'}</td>
+          <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">OK</span></td>
+        </tr>
+      `;
+    }
+
+    // EXPORTAR ESPELHO PDF
+    window.baixarEspelhoPontoPDF = function() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFillColor(138, 16, 44); doc.rect(0, 0, 210, 25, 'F');
+      doc.setTextColor(255, 255, 255); doc.setFontSize(14); doc.text("DFitas | Espelho de Ponto Individual", 14, 16);
+      doc.save(`Espelho_Ponto_${usuarioAtual ? usuarioAtual.email.split('@')[0] : 'Colaborador'}.pdf`);
+    };
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>
