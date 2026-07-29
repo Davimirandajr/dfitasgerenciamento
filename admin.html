@@ -30,7 +30,7 @@
 
   <!-- jsPDF & AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body class="bg-dfitas-bg text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row pb-16 md:pb-0">
 
@@ -132,11 +132,11 @@
 
           <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
             <div>
-              <p class="text-xs text-slate-500 font-medium uppercase">Banco de Horas Geral</p>
-              <h3 class="text-2xl font-bold text-emerald-600 mt-1">+00:00</h3>
-              <span class="text-xs text-emerald-600 font-medium">Saldo do mês</span>
+              <p class="text-xs text-slate-500 font-medium uppercase">Horas Registradas Hoje</p>
+              <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="totalHorasHoje">00:00</h3>
+              <span class="text-xs text-emerald-600 font-medium">Acumulado do dia</span>
             </div>
-            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="wallet"></i></div>
+            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="clock"></i></div>
           </div>
         </div>
 
@@ -262,7 +262,6 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Suas credenciais reais do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyB96jQgvX8nvBKcQGjgIHYzVCUkaFl_n_s",
       authDomain: "dfitas-gerenciamento.firebaseapp.com",
@@ -278,7 +277,7 @@
 
     let dadosPontosPDF = [];
 
-    // PROTEÇÃO DE ROTA (Garante que só logados fiquem aqui)
+    // PROTEÇÃO DE ROTA
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "login.html";
@@ -288,8 +287,12 @@
     });
 
     window.fazerLogout = async function() {
-      await signOut(auth);
-      window.location.href = "login.html";
+      try {
+        await signOut(auth);
+        window.location.href = "login.html";
+      } catch (err) {
+        console.error("Erro ao fazer logout:", err);
+      }
     };
 
     // NAVEGAÇÃO SPA ADMIN
@@ -300,9 +303,11 @@
         el.classList.add('text-slate-600');
       });
 
-      document.getElementById(`aba-${abaId}`).classList.remove('hidden');
+      const aba = document.getElementById(`aba-${abaId}`);
+      if (aba) aba.classList.remove('hidden');
+
       const btnAtivo = document.getElementById(`nav-${abaId}`);
-      if(btnAtivo) {
+      if (btnAtivo) {
         btnAtivo.classList.add('bg-dfitas-vinho/10', 'text-dfitas-vinho');
         btnAtivo.classList.remove('text-slate-600');
       }
@@ -315,6 +320,7 @@
         solicitacoes: 'Aprovação de Solicitações'
       };
       document.getElementById('tituloPaginaAdmin').innerText = titulos[abaId] || 'Administração';
+      lucide.createIcons();
     };
 
     // ESCUTAR REGISTROS EM TEMPO REAL NO FIREBASE
@@ -359,6 +365,7 @@
 
         document.getElementById("totalFuncionarios").innerText = snapshot.size;
         document.getElementById("emTrabalho").innerText = emTrabalhoCount;
+        lucide.createIcons();
       });
     }
 
@@ -390,11 +397,17 @@
           `;
           tabela.appendChild(tr);
         });
+        lucide.createIcons();
       });
     }
 
     // GERAR RELATÓRIO PDF
     window.gerarRelatorioPDF = function () {
+      if (!dadosPontosPDF || dadosPontosPDF.length === 0) {
+        alert("Nenhum dado registrado para exportar relatório.");
+        return;
+      }
+
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
@@ -433,6 +446,7 @@
       doc.save(`Relatorio_DFitas_${dataEmissao.replace(/\//g, '-')}.pdf`);
     };
 
+    // Inicializações
     escutarPontosLive();
     escutarSolicitacoes();
     lucide.createIcons();
