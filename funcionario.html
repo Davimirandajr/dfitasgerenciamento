@@ -30,7 +30,7 @@
 
   <!-- jsPDF & AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body class="bg-dfitas-bg text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row pb-16 md:pb-0">
 
@@ -47,7 +47,7 @@
         </div>
       </div>
 
-      <!-- MENU NAVEGAÇÃO -->
+      <!-- MENU NAVEGAÇÃO DESKTOP -->
       <nav class="p-4 space-y-1">
         <button onclick="navegarPara('inicio')" id="nav-inicio" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl bg-dfitas-vinho/10 text-dfitas-vinho transition">
           <i data-lucide="home" class="w-5 h-5"></i> Início
@@ -80,6 +80,34 @@
       </button>
     </div>
   </aside>
+
+  <!-- NAVEGAÇÃO MOBILE (BOTTOM NAV) -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-dfitas-border md:hidden flex justify-around items-center h-16 px-1 z-50 shadow-lg">
+    <button onclick="navegarPara('inicio')" id="nav-mob-inicio" class="nav-item-mob flex flex-col items-center justify-center text-dfitas-vinho text-[10px] font-semibold w-full py-1.5 transition">
+      <i data-lucide="home" class="w-5 h-5 mb-0.5"></i>
+      <span>Início</span>
+    </button>
+    
+    <button onclick="navegarPara('ponto')" id="nav-mob-ponto" class="nav-item-mob flex flex-col items-center justify-center text-slate-500 text-[10px] font-medium w-full py-1.5 transition">
+      <i data-lucide="clock" class="w-5 h-5 mb-0.5"></i>
+      <span>Registros</span>
+    </button>
+    
+    <button onclick="navegarPara('escala')" id="nav-mob-escala" class="nav-item-mob flex flex-col items-center justify-center text-slate-500 text-[10px] font-medium w-full py-1.5 transition">
+      <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
+      <span>Escala</span>
+    </button>
+    
+    <button onclick="navegarPara('solicitacoes')" id="nav-mob-solicitacoes" class="nav-item-mob flex flex-col items-center justify-center text-slate-500 text-[10px] font-medium w-full py-1.5 transition">
+      <i data-lucide="file-check-2" class="w-5 h-5 mb-0.5"></i>
+      <span>Pedidos</span>
+    </button>
+    
+    <button onclick="fazerLogout()" class="flex flex-col items-center justify-center text-rose-500 text-[10px] font-medium w-full py-1.5 transition">
+      <i data-lucide="log-out" class="w-5 h-5 mb-0.5"></i>
+      <span>Sair</span>
+    </button>
+  </nav>
 
   <!-- CONTEÚDO PRINCIPAL -->
   <main class="flex-1 flex flex-col min-w-0">
@@ -218,6 +246,10 @@
         <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
           <h3 class="text-base font-bold text-slate-800 mb-2">Escala Geral do Mês</h3>
           <p class="text-xs text-slate-500 mb-6">Confira seus turnos de trabalho atribuídos.</p>
+          
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm text-slate-600">
+            Jornada padrão configurada: <strong>07:00 às 16:00</strong> (Segunda a Sexta).
+          </div>
         </div>
       </section>
 
@@ -252,13 +284,13 @@
     </div>
   </main>
 
-  <!-- FIREBASE INTEGRADO COM O PROJETO DFITAS -->
+  <!-- FIREBASE INTEGRADO -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Suas credenciais reais do Firebase
+    // Credenciais do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyB96jQgvX8nvBKcQGjgIHYzVCUkaFl_n_s",
       authDomain: "dfitas-gerenciamento.firebaseapp.com",
@@ -275,7 +307,7 @@
     let usuarioAtual = null;
     let registroHoje = { entrada: null, almoco_inicio: null, almoco_fim: null, saida: null };
 
-    // PROTEÇÃO DE ROTA
+    // PROTEÇÃO DE ROTA E INICIALIZAÇÃO
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "login.html";
@@ -288,27 +320,52 @@
     });
 
     window.fazerLogout = async function() {
-      await signOut(auth);
-      window.location.href = "login.html";
+      try {
+        await signOut(auth);
+        window.location.href = "login.html";
+      } catch (err) {
+        console.error("Erro ao fazer logout:", err);
+      }
     };
 
-    // NAVEGAÇÃO SPA
+    // NAVEGAÇÃO SPA (DESKTOP E MOBILE)
     window.navegarPara = function(abaId) {
+      // Esconde todas as abas
       document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.add('hidden'));
+
+      // Reseta botões Desktop
       document.querySelectorAll('.nav-item').forEach(el => {
         el.classList.remove('bg-dfitas-vinho/10', 'text-dfitas-vinho');
         el.classList.add('text-slate-600');
       });
 
-      document.getElementById(`aba-${abaId}`).classList.remove('hidden');
+      // Reseta botões Mobile
+      document.querySelectorAll('.nav-item-mob').forEach(el => {
+        el.classList.remove('text-dfitas-vinho', 'font-semibold');
+        el.classList.add('text-slate-500', 'font-medium');
+      });
+
+      // Ativa a aba selecionada
+      const aba = document.getElementById(`aba-${abaId}`);
+      if (aba) aba.classList.remove('hidden');
+
+      // Ativa botão Desktop
       const btnAtivo = document.getElementById(`nav-${abaId}`);
-      if(btnAtivo) {
+      if (btnAtivo) {
         btnAtivo.classList.add('bg-dfitas-vinho/10', 'text-dfitas-vinho');
         btnAtivo.classList.remove('text-slate-600');
       }
 
+      // Ativa botão Mobile
+      const btnMobAtivo = document.getElementById(`nav-mob-${abaId}`);
+      if (btnMobAtivo) {
+        btnMobAtivo.classList.add('text-dfitas-vinho', 'font-semibold');
+        btnMobAtivo.classList.remove('text-slate-500', 'font-medium');
+      }
+
       const titulos = { inicio: 'Início', ponto: 'Meus Registros', escala: 'Minha Escala', solicitacoes: 'Solicitações' };
       document.getElementById('tituloPagina').innerText = titulos[abaId] || 'Painel';
+      lucide.createIcons();
     };
 
     // RELÓGIO DIGITAL
@@ -324,12 +381,16 @@
     }
 
     async function carregarRegistroHoje() {
-      if(!usuarioAtual) return;
-      const docSnap = await getDoc(doc(db, "registros_ponto", getIdHoje()));
-      if (docSnap.exists()) {
-        registroHoje = docSnap.data();
+      if (!usuarioAtual) return;
+      try {
+        const docSnap = await getDoc(doc(db, "registros_ponto", getIdHoje()));
+        if (docSnap.exists()) {
+          registroHoje = docSnap.data();
+        }
         atualizarInterface();
         renderizarTabelaPonto();
+      } catch (e) {
+        console.error("Erro ao carregar ponto do dia:", e);
       }
     }
 
@@ -347,17 +408,21 @@
       else if (!registroHoje.saida) { registroHoje.saida = horaAtual; novoStatus = "Finalizado"; }
       else return;
 
-      await setDoc(doc(db, "registros_ponto", getIdHoje()), {
-        uid: usuarioAtual.uid,
-        nome: usuarioAtual.email.split('@')[0],
-        email: usuarioAtual.email,
-        data: dataAtual,
-        ...registroHoje,
-        status: novoStatus
-      }, { merge: true });
+      try {
+        await setDoc(doc(db, "registros_ponto", getIdHoje()), {
+          uid: usuarioAtual.uid,
+          nome: usuarioAtual.email.split('@')[0],
+          email: usuarioAtual.email,
+          data: dataAtual,
+          ...registroHoje,
+          status: novoStatus
+        }, { merge: true });
 
-      atualizarInterface();
-      renderizarTabelaPonto();
+        atualizarInterface();
+        renderizarTabelaPonto();
+      } catch (err) {
+        console.error("Erro ao gravar ponto:", err);
+      }
     };
 
     function atualizarInterface() {
@@ -369,11 +434,24 @@
       const btn = document.getElementById("btnBaterPonto");
       const statusText = document.getElementById("statusPontoAtual");
 
-      if (!registroHoje.entrada) { btn.innerText = "Batimento de Entrada"; statusText.innerText = "Aguardando Entrada"; }
-      else if (!registroHoje.almoco_inicio) { btn.innerText = "Saída para Almoço"; statusText.innerText = "Em Trabalho"; }
-      else if (!registroHoje.almoco_fim) { btn.innerText = "Retorno do Almoço"; statusText.innerText = "Em Almoço"; }
-      else if (!registroHoje.saida) { btn.innerText = "Batimento de Saída"; statusText.innerText = "Em Trabalho"; }
-      else { btn.innerText = "Jornada Concluída"; btn.disabled = true; btn.classList.add("opacity-50"); statusText.innerText = "Finalizado"; }
+      if (!registroHoje.entrada) { 
+        btn.innerText = "Batimento de Entrada"; 
+        statusText.innerText = "Aguardando Entrada"; 
+      } else if (!registroHoje.almoco_inicio) { 
+        btn.innerText = "Saída para Almoço"; 
+        statusText.innerText = "Em Trabalho"; 
+      } else if (!registroHoje.almoco_fim) { 
+        btn.innerText = "Retorno do Almoço"; 
+        statusText.innerText = "Em Almoço"; 
+      } else if (!registroHoje.saida) { 
+        btn.innerText = "Batimento de Saída"; 
+        statusText.innerText = "Em Trabalho"; 
+      } else { 
+        btn.innerText = "Jornada Concluída"; 
+        btn.disabled = true; 
+        btn.classList.add("opacity-50", "cursor-not-allowed"); 
+        statusText.innerText = "Finalizado"; 
+      }
     }
 
     // ENVIAR SOLICITAÇÃO
@@ -383,27 +461,37 @@
       const data = document.getElementById('solData').value;
       const obs = document.getElementById('solObs').value;
 
-      await addDoc(collection(db, "solicitacoes"), {
-        uid: usuarioAtual.uid,
-        nome: usuarioAtual.email.split('@')[0],
-        email: usuarioAtual.email,
-        tipo, data, obs, status: "Pendente"
-      });
+      try {
+        await addDoc(collection(db, "solicitacoes"), {
+          uid: usuarioAtual.uid,
+          nome: usuarioAtual.email.split('@')[0],
+          email: usuarioAtual.email,
+          tipo, data, obs, status: "Pendente"
+        });
 
-      alert("Solicitação enviada com sucesso!");
-      e.target.reset();
+        alert("Solicitação enviada com sucesso!");
+        e.target.reset();
+      } catch (err) {
+        console.error("Erro ao enviar solicitação:", err);
+      }
     };
 
     function renderizarTabelaPonto() {
       const tabela = document.getElementById('tabelaHistoricoPonto');
+      const dataHoje = new Date().toLocaleDateString('pt-BR');
+      
       tabela.innerHTML = `
-        <tr>
-          <td class="p-4 font-bold text-slate-800">${new Date().toLocaleDateString('pt-BR')}</td>
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-4 font-bold text-slate-800">${dataHoje}</td>
           <td class="p-4 text-slate-600">${registroHoje.entrada || '--:--'}</td>
           <td class="p-4 text-slate-600">${registroHoje.almoco_inicio || '--:--'}</td>
           <td class="p-4 text-slate-600">${registroHoje.almoco_fim || '--:--'}</td>
           <td class="p-4 text-slate-600">${registroHoje.saida || '--:--'}</td>
-          <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">OK</span></td>
+          <td class="p-4">
+            <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${registroHoje.entrada ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}">
+              ${registroHoje.saida ? 'Concluído' : (registroHoje.entrada ? 'Em aberto' : 'Pendente')}
+            </span>
+          </td>
         </tr>
       `;
     }
@@ -412,9 +500,39 @@
     window.baixarEspelhoPontoPDF = function() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      doc.setFillColor(138, 16, 44); doc.rect(0, 0, 210, 25, 'F');
-      doc.setTextColor(255, 255, 255); doc.setFontSize(14); doc.text("DFitas | Espelho de Ponto Individual", 14, 16);
-      doc.save(`Espelho_Ponto_${usuarioAtual ? usuarioAtual.email.split('@')[0] : 'Colaborador'}.pdf`);
+      
+      doc.setFillColor(138, 16, 44); 
+      doc.rect(0, 0, 210, 25, 'F');
+      
+      doc.setTextColor(255, 255, 255); 
+      doc.setFontSize(14); 
+      doc.setFont('helvetica', 'bold');
+      doc.text("DFitas | Espelho de Ponto Individual", 14, 16);
+
+      const nomeColaborador = usuarioAtual ? usuarioAtual.email.split('@')[0] : 'Colaborador';
+      doc.setTextColor(50, 50, 50);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Colaborador: ${nomeColaborador}`, 14, 33);
+      doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, 14, 39);
+
+      const colunas = ["Data", "Entrada", "S. Almoço", "R. Almoço", "Saída"];
+      const linhas = [[
+        new Date().toLocaleDateString('pt-BR'),
+        registroHoje.entrada || '--:--',
+        registroHoje.almoco_inicio || '--:--',
+        registroHoje.almoco_fim || '--:--',
+        registroHoje.saida || '--:--'
+      ]];
+
+      doc.autoTable({
+        startY: 45,
+        head: [colunas],
+        body: linhas,
+        headStyles: { fillColor: [138, 16, 44] }
+      });
+
+      doc.save(`Espelho_Ponto_${nomeColaborador}.pdf`);
     };
 
     lucide.createIcons();
