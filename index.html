@@ -45,7 +45,7 @@
       <div>
         <label class="block text-xs font-semibold text-slate-600 mb-1.5">Usuário ou E-mail</label>
         <div class="relative">
-          <input type="text" id="usuario" required placeholder="Ex: admin ou dada@davi.com" class="w-full p-3.5 pl-10 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho lowercase" />
+          <input type="text" id="usuario" required placeholder="Ex: giorgia ou admin" class="w-full p-3.5 pl-10 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho lowercase" />
           <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-4"></i>
         </div>
       </div>
@@ -69,10 +69,9 @@
 
   </div>
 
-  <!-- INTEGRANDO SDK FIREBASE AUTH & FIRESTORE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -88,12 +87,15 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // Força o deslog para não entrar direto no celular
+    signOut(auth);
+
     const form = document.getElementById('formLogin');
     const btnEntrar = document.getElementById('btnEntrar');
     const erroDiv = document.getElementById('erroLogin');
 
     form.addEventListener('submit', async (e) => {
-      e.preventDefault(); // Impede o recarregamento automático da página no celular
+      e.preventDefault();
       erroDiv.classList.add('hidden');
       
       const usuarioInput = document.getElementById('usuario').value.trim().toLowerCase();
@@ -102,26 +104,35 @@
       btnEntrar.disabled = true;
       btnEntrar.innerHTML = `Entrando...`;
 
-      let emailFinal = usuarioInput.includes('@') ? usuarioInput : `${usuarioInput}@dfitas.com`;
+      // Regra dos Domínios (@admin.com vs @user.com)
+      let emailFinal = usuarioInput;
+      if (!usuarioInput.includes('@')) {
+        if (usuarioInput.includes('admin') || usuarioInput.includes('gerencia')) {
+          emailFinal = `${usuarioInput}@admin.com`;
+        } else {
+          emailFinal = `${usuarioInput}@user.com`;
+        }
+      }
 
       try {
         const userCredential = await signInWithEmailAndPassword(auth, emailFinal, senha);
         const user = userCredential.user;
 
-        // Verifica a função no Firestore
         let destino = 'funcionario.html';
+
         try {
           const userDoc = await getDoc(doc(db, "usuarios", user.uid));
           if (userDoc.exists() && userDoc.data().role === 'admin') {
             destino = 'admin.html';
-          } else if (usuarioInput.includes('admin') || usuarioInput.includes('gerencia')) {
+          } else if (emailFinal.endsWith('@admin.com') || usuarioInput.includes('admin')) {
             destino = 'admin.html';
           }
         } catch (dbErr) {
-          if (usuarioInput.includes('admin')) destino = 'admin.html';
+          if (emailFinal.endsWith('@admin.com') || usuarioInput.includes('admin')) {
+            destino = 'admin.html';
+          }
         }
 
-        // Redireciona de forma segura
         window.location.href = destino;
 
       } catch (error) {
