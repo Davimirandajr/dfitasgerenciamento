@@ -34,7 +34,7 @@
         DF
       </div>
       <h1 class="text-2xl font-bold text-dfitas-vinho">DFitas</h1>
-      <p class="text-xs text-slate-500">Acesse o sistema com seu e-mail e senha</p>
+      <p class="text-xs text-slate-500">Digite seu usuário ou e-mail para entrar</p>
     </div>
 
     <!-- MENSAGEM DE ERRO/ALERTA -->
@@ -43,10 +43,10 @@
     <!-- FORMULÁRIO -->
     <form id="formLogin" class="space-y-4">
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">E-mail</label>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Usuário ou E-mail</label>
         <div class="relative">
-          <input type="email" id="email" required placeholder="admin@dfitas.com" class="w-full p-3 pl-10 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
-          <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3 top-3.5"></i>
+          <input type="text" id="usuario" required placeholder="Ex: admin ou maria" class="w-full p-3 pl-10 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho lowercase" />
+          <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3 top-3.5"></i>
         </div>
       </div>
 
@@ -75,7 +75,6 @@
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Suas credenciais reais do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyB96jQgvX8nvBKcQGjgIHYzVCUkaFl_n_s",
       authDomain: "dfitas-gerenciamento.firebaseapp.com",
@@ -91,37 +90,58 @@
 
     const form = document.getElementById('formLogin');
     const erroDiv = document.getElementById('erroLogin');
+    const btnEntrar = document.getElementById('btnEntrar');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       erroDiv.classList.add('hidden');
+      
+      // Feedback visual de carregamento
+      btnEntrar.disabled = true;
+      btnEntrar.innerText = "Entrando...";
 
-      const email = document.getElementById('email').value.trim();
+      let usuarioInput = document.getElementById('usuario').value.trim().toLowerCase();
       const senha = document.getElementById('senha').value;
+
+      // Mapeia usuário simples para e-mail da empresa (ex: admin -> admin@dfitas.com)
+      const emailFinal = usuarioInput.includes('@') ? usuarioInput : `${usuarioInput}@dfitas.com`;
 
       try {
         // 1. Autentica no Firebase Auth
-        const userCredential = await signInWithEmailAndPassword(auth, email, senha);
+        const userCredential = await signInWithEmailAndPassword(auth, emailFinal, senha);
         const user = userCredential.user;
 
-        // 2. Busca perfil na coleção "usuarios" para direcionamento
-        const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+        // 2. Tenta consultar a role no Firestore
+        let role = null;
+        try {
+          const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+          if (userDoc.exists()) {
+            role = userDoc.data().role;
+          }
+        } catch (dbError) {
+          console.warn("Aviso ao buscar documento no Firestore:", dbError);
+        }
 
-        if (userDoc.exists() && userDoc.data().role === 'admin') {
-          window.location.href = 'admin.html';
-        } else if (email.includes('admin')) {
-          // Fallback para e-mails que contenham admin
+        // 3. Redirecionamento correto
+        if (role === 'admin' || usuarioInput.includes('admin') || usuarioInput.includes('gerencia')) {
           window.location.href = 'admin.html';
         } else {
-          window.location.href = 'index.html';
+          window.location.href = 'funcionario.html';
         }
 
       } catch (error) {
+        console.error("Erro na autenticação:", error);
+        btnEntrar.disabled = false;
+        btnEntrar.innerHTML = `<i data-lucide="log-in" class="w-4 h-4"></i> Acessar Painel`;
+        lucide.createIcons();
+
         erroDiv.classList.remove('hidden');
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-          erroDiv.innerText = "E-mail ou senha incorretos.";
+          erroDiv.innerText = "Usuário ou senha incorretos.";
+        } else if (error.code === 'auth/unauthorized-domain') {
+          erroDiv.innerText = "Domínio não autorizado no Firebase Console.";
         } else {
-          erroDiv.innerText = "Erro ao conectar. Verifique as credenciais no Firebase.";
+          erroDiv.innerText = `Erro ao conectar (${error.code || 'conexão'}).`;
         }
       }
     });
