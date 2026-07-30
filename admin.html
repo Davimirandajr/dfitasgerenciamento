@@ -64,7 +64,7 @@
           <i data-lucide="clock" class="w-5 h-5"></i> Registros de Ponto
         </button>
         <button onclick="navegarAdmin('solicitacoes')" id="nav-solicitacoes" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
-          <i data-lucide="file-check-2" class="w-5 h-5"></i> Solicitações <span class="ml-auto bg-dfitas-rosa text-white text-[10px] px-2 py-0.5 rounded-full badge-solicitacoes" id="badgeSolicitacoes">0</span>
+          <i data-lucide="file-check-2" class="w-5 h-5"></i> Solicitações <span class="ml-auto bg-dfitas-rosa text-white text-[10px] px-2 py-0.5 rounded-full font-bold" id="badgeSolicitacoes">0</span>
         </button>
       </nav>
     </div>
@@ -111,7 +111,7 @@
     <button onclick="navegarAdmin('solicitacoes')" id="nav-mob-solicitacoes" class="nav-btn-mob flex flex-col items-center justify-center text-slate-500 text-[10px] font-medium w-full py-1.5 transition relative">
       <i data-lucide="file-check-2" class="w-5 h-5 mb-0.5"></i>
       <span>Pedidos</span>
-      <span class="absolute top-1 right-3 bg-dfitas-rosa text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-bold badge-solicitacoes" id="badgeSolicitacoesMob">0</span>
+      <span class="absolute top-1 right-3 bg-dfitas-rosa text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-bold" id="badgeSolicitacoesMob">0</span>
     </button>
     
     <button onclick="fazerLogout()" class="flex flex-col items-center justify-center text-rose-500 text-[10px] font-medium w-full py-1.5 transition">
@@ -247,7 +247,6 @@
             </button>
           </div>
 
-          <!-- Tabela de Escalas Lançadas -->
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
@@ -276,7 +275,7 @@
               <h3 class="text-base font-bold text-slate-800">Espelhos de Ponto</h3>
               <p class="text-xs text-slate-500">Histórico completo de batimentos recebidos.</p>
             </div>
-            <input type="text" id="filtroRegistroNome" oninput="filtrarRegistros()" placeholder="Filtrar por nome..." class="px-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-dfitas-vinho/20">
+            <input type="text" id="filtroRegistroNome" oninput="filtrarRegistros()" placeholder="Filtrar por nome ou data..." class="px-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-dfitas-vinho/20">
           </div>
           
           <div class="overflow-x-auto">
@@ -303,7 +302,10 @@
       <!-- ================= ABA 5: SOLICITAÇÕES ================= -->
       <section id="aba-solicitacoes" class="aba-admin hidden space-y-6">
         <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
-          <h3 class="text-base font-bold text-slate-800 mb-4">Solicitações dos Colaboradores</h3>
+          <div class="mb-6">
+            <h3 class="text-base font-bold text-slate-800">Solicitações dos Colaboradores</h3>
+            <p class="text-xs text-slate-500">Aprovações de ajustes de ponto, justificativas e atestados.</p>
+          </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
@@ -490,7 +492,7 @@
         const hojeStr = new Date().toLocaleDateString('pt-BR');
 
         if (snapshot.empty) {
-          tabelaLive.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Nenhum batimento registrado hoje.</td></tr>`;
+          tabelaLive.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Nenhum batimento registrado.</td></tr>`;
           document.getElementById("totalFuncionarios").innerText = "0";
           document.getElementById("emTrabalho").innerText = "0";
           document.getElementById("totalHorasHoje").innerText = "00:00";
@@ -663,14 +665,7 @@
         tabela.innerHTML = "";
 
         if (snapshot.empty) {
-          tabela.innerHTML = `
-            <tr>
-              <td class="p-4 font-bold text-slate-800">Equipe DFitas</td>
-              <td class="p-4 text-slate-600">colaborador@dfitas.com</td>
-              <td class="p-4 text-slate-600">Operacional / Vendas</td>
-              <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">Ativo</span></td>
-            </tr>
-          `;
+          tabela.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Nenhum funcionário cadastrado.</td></tr>`;
           return;
         }
 
@@ -679,100 +674,102 @@
           const tr = document.createElement("tr");
           tr.className = "hover:bg-slate-50 transition";
           tr.innerHTML = `
-            <td class="p-4 font-bold text-slate-800">${item.nome || 'Colaborador'}</td>
+            <td class="p-4 font-bold text-slate-800 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-slate-100 text-dfitas-vinho font-bold flex items-center justify-center text-xs border border-slate-200">
+                ${(item.nome || 'F').substring(0, 2).toUpperCase()}
+              </div>
+              ${item.nome || 'Sem Nome'}
+            </td>
             <td class="p-4 text-slate-600">${item.email || '--'}</td>
-            <td class="p-4 text-slate-600">${item.cargo || 'Geral'}</td>
-            <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full ${item.status === 'Inativo' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">${item.status || 'Ativo'}</span></td>
+            <td class="p-4 text-slate-600 font-medium">${item.cargo || 'Colaborador'}</td>
+            <td class="p-4">
+              <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">Ativo</span>
+            </td>
           `;
           tabela.appendChild(tr);
         });
-      }, () => {
-        const tabela = document.getElementById("tabelaFuncionarios");
-        if (tabela) {
-          tabela.innerHTML = `
-            <tr>
-              <td class="p-4 font-bold text-slate-800">Equipe DFitas</td>
-              <td class="p-4 text-slate-600">colaborador@dfitas.com</td>
-              <td class="p-4 text-slate-600">Operacional / Vendas</td>
-              <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">Ativo</span></td>
-            </tr>
-          `;
-        }
       });
     }
 
-    // ESCUTAR SOLICITAÇÕES (ABA 5)
+    // ESCUTAR E GERENCIAR SOLICITAÇÕES (ABA 5)
     function escutarSolicitacoes() {
       const q = query(collection(db, "solicitacoes"));
-
       onSnapshot(q, (snapshot) => {
         const tabela = document.getElementById("tabelaSolicitacoesAdmin");
-        const badgeDesktop = document.getElementById("badgeSolicitacoes");
+        const badge = document.getElementById("badgeSolicitacoes");
         const badgeMob = document.getElementById("badgeSolicitacoesMob");
         
+        if (!tabela) return;
         tabela.innerHTML = "";
-        
-        let pendentesCount = 0;
-        snapshot.forEach(docSnap => {
-          if (docSnap.data().status === 'Pendente') pendentesCount++;
-        });
 
-        if (badgeDesktop) badgeDesktop.innerText = pendentesCount;
-        if (badgeMob) badgeMob.innerText = pendentesCount;
+        let pendentes = 0;
 
         if (snapshot.empty) {
-          tabela.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma solicitação no momento.</td></tr>`;
+          tabela.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma solicitação cadastrada.</td></tr>`;
+          if (badge) badge.innerText = "0";
+          if (badgeMob) badgeMob.innerText = "0";
           return;
         }
 
         snapshot.forEach((docSnap) => {
           const item = docSnap.data();
           const docId = docSnap.id;
+          const status = item.status || 'Pendente';
+
+          if (status === 'Pendente') pendentes++;
+
+          let statusClass = 'bg-amber-100 text-amber-700';
+          if (status === 'Aprovado') statusClass = 'bg-emerald-100 text-emerald-700';
+          if (status === 'Recusado') statusClass = 'bg-rose-100 text-rose-700';
+
           const tr = document.createElement("tr");
           tr.className = "hover:bg-slate-50 transition";
-          
-          let statusBadge = 'bg-amber-100 text-amber-700';
-          if (item.status === 'Aprovado') statusBadge = 'bg-emerald-100 text-emerald-700';
-          if (item.status === 'Recusado') statusBadge = 'bg-rose-100 text-rose-700';
-
           tr.innerHTML = `
-            <td class="p-4 font-bold text-slate-800">${item.nome || 'Funcionário'}</td>
+            <td class="p-4 font-bold text-slate-800">${item.funcionario || 'Funcionário'}</td>
             <td class="p-4 text-slate-600">${item.tipo || 'Ajuste'}</td>
             <td class="p-4 text-slate-600">${item.data || '--'}</td>
-            <td class="p-4 text-slate-600 text-xs">${item.obs || '-'}</td>
-            <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full ${statusBadge}">${item.status || 'Pendente'}</span></td>
+            <td class="p-4 text-slate-600 text-xs max-w-xs truncate">${item.justificativa || '-'}</td>
+            <td class="p-4">
+              <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${statusClass}">
+                ${status}
+              </span>
+            </td>
             <td class="p-4 text-right space-x-1">
-              ${item.status === 'Pendente' ? `
-                <button onclick="atualizarSolicitacao('${docId}', 'Aprovado')" class="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition" title="Aprovar">
+              ${status === 'Pendente' ? `
+                <button onclick="atualizarStatusSolicitacao('${docId}', 'Aprovado')" class="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition" title="Aprovar">
                   <i data-lucide="check" class="w-4 h-4"></i>
                 </button>
-                <button onclick="atualizarSolicitacao('${docId}', 'Recusado')" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition" title="Recusar">
+                <button onclick="atualizarStatusSolicitacao('${docId}', 'Recusado')" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition" title="Recusar">
                   <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
-              ` : '<span class="text-xs text-slate-400">Concluído</span>'}
+              ` : `<span class="text-xs text-slate-400 font-medium">Concluído</span>`}
             </td>
           `;
           tabela.appendChild(tr);
         });
+
+        if (badge) badge.innerText = pendentes;
+        if (badgeMob) badgeMob.innerText = pendentes;
         lucide.createIcons();
       });
     }
 
-    // AÇÕES DE APROVAR/RECUSAR SOLICITAÇÃO
-    window.atualizarSolicitacao = async function(id, novoStatus) {
+    window.atualizarStatusSolicitacao = async function(id, novoStatus) {
       try {
-        const ref = doc(db, "solicitacoes", id);
-        await updateDoc(ref, { status: novoStatus });
+        await updateDoc(doc(db, "solicitacoes", id), {
+          status: novoStatus,
+          atualizadoEm: new Date().toISOString()
+        });
       } catch (err) {
         console.error("Erro ao atualizar solicitação:", err);
-        alert("Erro ao alterar status da solicitação.");
+        alert("Erro ao alterar o status da solicitação.");
       }
     };
 
-    // GERAR RELATÓRIO PDF
-    window.gerarRelatorioPDF = function () {
-      if (!dadosPontosPDF || dadosPontosPDF.length === 0) {
-        alert("Nenhum dado registrado para exportar relatório.");
+    // EXPORTAR RELATÓRIO PDF
+    window.gerarRelatorioPDF = function() {
+      if (!window.jspdf) {
+        alert("Biblioteca PDF ainda está carregando. Aguarde um instante.");
         return;
       }
 
@@ -780,46 +777,55 @@
       const doc = new jsPDF();
 
       doc.setFillColor(138, 16, 44);
-      doc.rect(0, 0, 210, 25, 'F');
-      
+      doc.rect(0, 0, 210, 24, "F");
+
       doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.text("DFitas | Relatório de Registro de Ponto", 14, 16);
+      doc.text("DFitas - Relatório Geral de Frequência", 14, 16);
 
-      const dataEmissao = new Date().toLocaleDateString('pt-BR');
-      doc.setTextColor(50, 50, 50);
+      doc.setTextColor(100);
       doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Emissão: ${dataEmissao}`, 14, 33);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 32);
 
-      const colunas = ["Funcionário", "Data", "Entrada", "S. Almoço", "R. Almoço", "Saída", "Status"];
-      const linhas = dadosPontosPDF.map(item => [
-        item.nome || '',
-        item.data || '',
-        item.entrada || '--:--',
-        item.almoco_inicio || '--:--',
-        item.almoco_fim || '--:--',
-        item.saida || '--:--',
-        item.status || 'Finalizado'
-      ]);
+      const tableColumn = ["Funcionário", "Data", "Entrada", "S. Almoço", "R. Almoço", "Saída", "Total"];
+      const tableRows = [];
 
-      doc.autoTable({
-        startY: 40,
-        head: [colunas],
-        body: linhas,
-        headStyles: { fillColor: [138, 16, 44] }
+      dadosPontosPDF.forEach(item => {
+        const total = calcularHorasTrabalhadas(item.entrada, item.almoco_inicio, item.almoco_fim, item.saida);
+        const row = [
+          item.nome || "N/I",
+          item.data || "--",
+          item.entrada || "--:--",
+          item.almoco_inicio || "--:--",
+          item.almoco_fim || "--:--",
+          item.saida || "--:--",
+          total
+        ];
+        tableRows.push(row);
       });
 
-      doc.save(`Relatorio_DFitas_${dataEmissao.replace(/\//g, '-')}.pdf`);
+      doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 38,
+        headStyles: { fillColor: [138, 16, 44], textColor: [255, 255, 255], fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        styles: { fontSize: 9, cellPadding: 3 }
+      });
+
+      doc.save(`relatorio_ponto_dfitas_${new Date().toISOString().slice(0,10)}.pdf`);
     };
 
-    // Inicializações
-    escutarPontosLive();
-    escutarFuncionarios();
-    escutarEscalas();
-    escutarSolicitacoes();
-    lucide.createIcons();
+    // INICIALIZAÇÃO DOS OBSERVADORES EM TEMPO REAL
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      escutarPontosLive();
+      escutarFuncionarios();
+      escutarEscalas();
+      escutarSolicitacoes();
+    });
   </script>
 </body>
 </html>
