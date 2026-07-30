@@ -147,8 +147,8 @@
           <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
             <div>
               <p class="text-xs text-slate-500 font-medium uppercase">Banco de Horas</p>
-              <h3 class="text-2xl font-bold text-emerald-600 mt-1">+00:00</h3>
-              <span class="text-xs text-emerald-600 font-medium">Saldo Positivo</span>
+              <h3 class="text-2xl font-bold mt-1" id="cardBancoHoras">+00:00</h3>
+              <span class="text-xs font-medium text-slate-500" id="lblBancoHoras">Saldo Neutro</span>
             </div>
             <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="wallet"></i></div>
           </div>
@@ -173,7 +173,7 @@
               
               <div class="space-y-3">
                 <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100">
-                  <span class="text-slate-600">Entrada</span>
+                  <span class="text-slate-600">Entrada (Limite 07:05)</span>
                   <span class="font-bold text-slate-800" id="txtEntrada">--:--</span>
                 </div>
                 <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100">
@@ -189,6 +189,12 @@
                   <span class="font-bold text-slate-800" id="txtSaida">--:--</span>
                 </div>
               </div>
+            </div>
+
+            <!-- MENSAGEM / ALERTA DE ATRASO -->
+            <div id="alertaAtraso" class="hidden mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+              <p class="font-bold mb-1"><i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i> Horário limite excedido (07:05)!</p>
+              <p>O batimento direto está bloqueado. Envie uma solicitação para liberação do Admin. As horas em atraso serão contabilizadas como saldo devedor.</p>
             </div>
 
             <button id="btnBaterPonto" onclick="baterPonto()" class="w-full mt-6 py-3.5 bg-dfitas-vinho hover:bg-dfitas-vinho/90 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2">
@@ -211,7 +217,7 @@
             </div>
             <div class="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
               <i data-lucide="info" class="w-5 h-5 text-dfitas-rosa"></i>
-              <p class="text-xs text-slate-600">Registros gravados em tempo real no banco de dados.</p>
+              <p class="text-xs text-slate-600">Registros gravados em tempo real no banco de dados. Entrada permitida até as 07:05 (tolerância de 5 min).</p>
             </div>
           </div>
         </div>
@@ -230,6 +236,7 @@
                   <th class="p-4">Início Almoço</th>
                   <th class="p-4">Fim Almoço</th>
                   <th class="p-4">Saída</th>
+                  <th class="p-4">Saldo Devedor</th>
                   <th class="p-4">Status</th>
                 </tr>
               </thead>
@@ -248,7 +255,7 @@
           <p class="text-xs text-slate-500 mb-6">Confira seus turnos de trabalho atribuídos.</p>
           
           <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm text-slate-600">
-            Jornada padrão configurada: <strong>07:00 às 16:00</strong> (Segunda a Sexta).
+            Jornada padrão configurada: <strong>07:00 às 16:00</strong> (Segunda a Sexta) - Tolerância de entrada até 07:05.
           </div>
         </div>
       </section>
@@ -256,14 +263,15 @@
       <!-- ================= ABA 4: SOLICITAÇÕES ================= -->
       <section id="aba-solicitacoes" class="aba-conteudo hidden space-y-6">
         <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6 max-w-xl">
-          <h3 class="text-base font-bold text-slate-800 mb-4">Nova Solicitação de Ajuste / Férias</h3>
+          <h3 class="text-base font-bold text-slate-800 mb-4">Nova Solicitação de Ajuste / Liberação</h3>
           <form onsubmit="enviarSolicitacao(event)" class="space-y-4">
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo</label>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Solicitação</label>
               <select id="solTipo" class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho">
-                <option>Ajuste de Ponto</option>
-                <option>Solicitação de Férias</option>
-                <option>Abono com Atestado</option>
+                <option value="Liberação de Ponto por Atraso">Liberação de Ponto por Atraso (> 07:05)</option>
+                <option value="Ajuste de Ponto">Ajuste de Ponto Manual</option>
+                <option value="Solicitação de Férias">Solicitação de Férias</option>
+                <option value="Abono com Atestado">Abono com Atestado</option>
               </select>
             </div>
             <div>
@@ -271,11 +279,15 @@
               <input type="date" id="solData" required class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
             </div>
             <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Horário Real de Chegada / Entrada</label>
+              <input type="time" id="solHoraChegada" class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
+            </div>
+            <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Justificativa</label>
-              <textarea id="solObs" rows="3" required placeholder="Escreva o motivo..." class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho"></textarea>
+              <textarea id="solObs" rows="3" required placeholder="Escreva o motivo do atraso ou ajuste..." class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho"></textarea>
             </div>
             <button type="submit" class="w-full py-3 bg-dfitas-vinho text-white font-bold text-sm rounded-xl hover:bg-dfitas-vinho/90 transition">
-              Enviar Solicitação
+              Enviar Solicitação ao Admin
             </button>
           </form>
         </div>
@@ -288,7 +300,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Credenciais do Firebase
     const firebaseConfig = {
@@ -305,7 +317,8 @@
     const db = getFirestore(app);
 
     let usuarioAtual = null;
-    let registroHoje = { entrada: null, almoco_inicio: null, almoco_fim: null, saida: null };
+    let registroHoje = { entrada: null, almoco_inicio: null, almoco_fim: null, saida: null, saldo_devedor_minutos: 0, liberado_pelo_admin: false };
+    let solicitacaoAtrasoPendente = false;
 
     // PROTEÇÃO DE ROTA E INICIALIZAÇÃO
     onAuthStateChanged(auth, async (user) => {
@@ -315,7 +328,13 @@
         usuarioAtual = user;
         document.getElementById("usuarioEmail").innerText = user.email;
         document.getElementById("usuarioNome").innerText = user.email.split('@')[0];
-        carregarRegistroHoje();
+        
+        // Preenche data atual por padrão no form de solicitação
+        const hojeIso = new Date().toISOString().split('T')[0];
+        document.getElementById("solData").value = hojeIso;
+
+        await verificarSolicitacoesPendentes();
+        await carregarRegistroHoje();
       }
     });
 
@@ -330,33 +349,27 @@
 
     // NAVEGAÇÃO SPA (DESKTOP E MOBILE)
     window.navegarPara = function(abaId) {
-      // Esconde todas as abas
       document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.add('hidden'));
 
-      // Reseta botões Desktop
       document.querySelectorAll('.nav-item').forEach(el => {
         el.classList.remove('bg-dfitas-vinho/10', 'text-dfitas-vinho');
         el.classList.add('text-slate-600');
       });
 
-      // Reseta botões Mobile
       document.querySelectorAll('.nav-item-mob').forEach(el => {
         el.classList.remove('text-dfitas-vinho', 'font-semibold');
         el.classList.add('text-slate-500', 'font-medium');
       });
 
-      // Ativa a aba selecionada
       const aba = document.getElementById(`aba-${abaId}`);
       if (aba) aba.classList.remove('hidden');
 
-      // Ativa botão Desktop
       const btnAtivo = document.getElementById(`nav-${abaId}`);
       if (btnAtivo) {
         btnAtivo.classList.add('bg-dfitas-vinho/10', 'text-dfitas-vinho');
         btnAtivo.classList.remove('text-slate-600');
       }
 
-      // Ativa botão Mobile
       const btnMobAtivo = document.getElementById(`nav-mob-${abaId}`);
       if (btnMobAtivo) {
         btnMobAtivo.classList.add('text-dfitas-vinho', 'font-semibold');
@@ -368,11 +381,13 @@
       lucide.createIcons();
     };
 
-    // RELÓGIO DIGITAL
+    // RELÓGIO DIGITAL E VALIDAÇÃO DINÂMICA
     setInterval(() => {
       const agora = new Date();
       document.getElementById("relogioDigital").innerText = agora.toLocaleTimeString('pt-BR');
       document.getElementById("dataAtual").innerText = agora.toLocaleDateString('pt-BR');
+      
+      atualizarInterface();
     }, 1000);
 
     function getIdHoje() {
@@ -380,12 +395,43 @@
       return `${usuarioAtual ? usuarioAtual.uid : 'temp'}_${dataHoje}`;
     }
 
+    async function verificarSolicitacoesPendentes() {
+      if (!usuarioAtual) return;
+      try {
+        const dataHoje = new Date().toISOString().split('T')[0];
+        const q = query(
+          collection(db, "solicitacoes"), 
+          where("uid", "==", usuarioAtual.uid),
+          where("data", "==", dataHoje),
+          where("tipo", "==", "Liberação de Ponto por Atraso")
+        );
+        const querySnap = await getDocs(q);
+        solicitacaoAtrasoPendente = false;
+
+        querySnap.forEach(doc => {
+          const data = doc.data();
+          if (data.status === "Pendente") {
+            solicitacaoAtrasoPendente = true;
+          } else if (data.status === "Aprovado") {
+            registroHoje.liberado_pelo_admin = true;
+            if (data.horaChegada && !registroHoje.entrada) {
+              registroHoje.entrada = data.horaChegada;
+              registroHoje.saldo_devedor_minutos = data.saldoDevedorMinutos || 0;
+            }
+          }
+        });
+      } catch (e) {
+        console.error("Erro ao verificar solicitações:", e);
+      }
+    }
+
     async function carregarRegistroHoje() {
       if (!usuarioAtual) return;
       try {
         const docSnap = await getDoc(doc(db, "registros_ponto", getIdHoje()));
         if (docSnap.exists()) {
-          registroHoje = docSnap.data();
+          const dados = docSnap.data();
+          registroHoje = { ...registroHoje, ...dados };
         }
         atualizarInterface();
         renderizarTabelaPonto();
@@ -394,17 +440,58 @@
       }
     }
 
-    // BATIMENTO DE PONTO GRAVADO NO FIREBASE
+    // CÁLCULO DE MINUTOS DE ATRASO (A partir do horário oficial: 07:00)
+    function calcularMinutosAtraso(horaString) {
+      const [horas, minutos] = horaString.split(':').map(Number);
+      const minutosTotaisEntrada = (horas * 60) + minutos;
+      const minutosTotaisOficial = (7 * 60); // 07:00 -> 420 minutos
+
+      if (minutosTotaisEntrada > minutosTotaisOficial) {
+        return minutosTotaisEntrada - minutosTotaisOficial;
+      }
+      return 0;
+    }
+
+    function formatarMinutosParaHoras(minutos) {
+      if (!minutos || minutos <= 0) return "00:00";
+      const h = Math.floor(minutos / 60);
+      const m = minutos % 60;
+      return `-${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+
+    // BATIMENTO DE PONTO
     window.baterPonto = async function() {
       if (!usuarioAtual) return;
 
-      const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      const dataAtual = new Date().toLocaleDateString('pt-BR');
+      const agora = new Date();
+      const hora = agora.getHours();
+      const minuto = agora.getMinutes();
+      const horaAtual = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const dataAtual = agora.toLocaleDateString('pt-BR');
       let novoStatus = "Em trabalho";
 
-      if (!registroHoje.entrada) registroHoje.entrada = horaAtual;
+      // SE FOR O PRIMEIRO BATIMENTO (ENTRADA)
+      if (!registroHoje.entrada) {
+        // Regra de Tolerância: Entrada até as 07:05 sem necessitar do Admin
+        const passouTolerancia = (hora > 7) || (hora === 7 && minuto > 5);
+
+        if (passouTolerancia && !registroHoje.liberado_pelo_admin) {
+          if (solicitacaoAtrasoPendente) {
+            alert("Sua solicitação de liberação por atraso já foi enviada e está em análise pelo Admin. Aguarde a aprovação!");
+          } else {
+            if (confirm("Você ultrapassou o horário limite (07:05). Deseja ir para a página de solicitações enviar o pedido de liberação para o Admin?")) {
+              document.getElementById("solHoraChegada").value = horaAtual;
+              navegarPara('solicitacoes');
+            }
+          }
+          return;
+        }
+
+        registroHoje.entrada = horaAtual;
+        registroHoje.saldo_devedor_minutos = calcularMinutosAtraso(horaAtual);
+      } 
       else if (!registroHoje.almoco_inicio) { registroHoje.almoco_inicio = horaAtual; novoStatus = "Em Almoço"; }
-      else if (!registroHoje.almoco_fim) registroHoje.almoco_fim = horaAtual;
+      else if (!registroHoje.almoco_fim) { registroHoje.almoco_fim = horaAtual; novoStatus = "Em Trabalho"; }
       else if (!registroHoje.saida) { registroHoje.saida = horaAtual; novoStatus = "Finalizado"; }
       else return;
 
@@ -433,23 +520,60 @@
 
       const btn = document.getElementById("btnBaterPonto");
       const statusText = document.getElementById("statusPontoAtual");
+      const alertaAtraso = document.getElementById("alertaAtraso");
+      const cardBancoHoras = document.getElementById("cardBancoHoras");
+      const lblBancoHoras = document.getElementById("lblBancoHoras");
+
+      // Atualiza Card Banco de Horas / Saldo Devedor
+      if (registroHoje.saldo_devedor_minutos > 0) {
+        cardBancoHoras.innerText = formatarMinutosParaHoras(registroHoje.saldo_devedor_minutos);
+        cardBancoHoras.className = "text-2xl font-bold mt-1 text-rose-600";
+        lblBancoHoras.innerText = "Saldo Devedor (Atraso)";
+        lblBancoHoras.className = "text-xs font-medium text-rose-600";
+      } else {
+        cardBancoHoras.innerText = "+00:00";
+        cardBancoHoras.className = "text-2xl font-bold mt-1 text-emerald-600";
+        lblBancoHoras.innerText = "Saldo Positivo / Neutro";
+        lblBancoHoras.className = "text-xs font-medium text-emerald-600";
+      }
+
+      const agora = new Date();
+      const hora = agora.getHours();
+      const minuto = agora.getMinutes();
+      const passouTolerancia = (hora > 7) || (hora === 7 && minuto > 5);
 
       if (!registroHoje.entrada) { 
-        btn.innerText = "Batimento de Entrada"; 
-        statusText.innerText = "Aguardando Entrada"; 
+        if (passouTolerancia && !registroHoje.liberado_pelo_admin) {
+          alertaAtraso.classList.remove("hidden");
+          btn.innerText = solicitacaoAtrasoPendente ? "Aguardando Liberação do Admin" : "Solicitar Liberação de Entrada"; 
+          btn.className = "w-full mt-6 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2";
+          statusText.innerText = solicitacaoAtrasoPendente ? "Análise do Admin" : "Atraso Identificado"; 
+        } else {
+          alertaAtraso.classList.add("hidden");
+          btn.innerText = "Batimento de Entrada"; 
+          btn.className = "w-full mt-6 py-3.5 bg-dfitas-vinho hover:bg-dfitas-vinho/90 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2";
+          statusText.innerText = "Aguardando Entrada"; 
+        }
       } else if (!registroHoje.almoco_inicio) { 
+        alertaAtraso.classList.add("hidden");
         btn.innerText = "Saída para Almoço"; 
+        btn.className = "w-full mt-6 py-3.5 bg-dfitas-vinho hover:bg-dfitas-vinho/90 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2";
         statusText.innerText = "Em Trabalho"; 
       } else if (!registroHoje.almoco_fim) { 
+        alertaAtraso.classList.add("hidden");
         btn.innerText = "Retorno do Almoço"; 
+        btn.className = "w-full mt-6 py-3.5 bg-dfitas-vinho hover:bg-dfitas-vinho/90 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2";
         statusText.innerText = "Em Almoço"; 
       } else if (!registroHoje.saida) { 
+        alertaAtraso.classList.add("hidden");
         btn.innerText = "Batimento de Saída"; 
+        btn.className = "w-full mt-6 py-3.5 bg-dfitas-vinho hover:bg-dfitas-vinho/90 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2";
         statusText.innerText = "Em Trabalho"; 
       } else { 
+        alertaAtraso.classList.add("hidden");
         btn.innerText = "Jornada Concluída"; 
         btn.disabled = true; 
-        btn.classList.add("opacity-50", "cursor-not-allowed"); 
+        btn.className = "w-full mt-6 py-3.5 bg-slate-400 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"; 
         statusText.innerText = "Finalizado"; 
       }
     }
@@ -460,17 +584,31 @@
       const tipo = document.getElementById('solTipo').value;
       const data = document.getElementById('solData').value;
       const obs = document.getElementById('solObs').value;
+      const horaChegada = document.getElementById('solHoraChegada').value || new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+      let saldoDevedorMinutos = 0;
+      if (tipo.includes("Atraso") || tipo.includes("Ajuste")) {
+        saldoDevedorMinutos = calcularMinutosAtraso(horaChegada);
+      }
 
       try {
         await addDoc(collection(db, "solicitacoes"), {
           uid: usuarioAtual.uid,
           nome: usuarioAtual.email.split('@')[0],
           email: usuarioAtual.email,
-          tipo, data, obs, status: "Pendente"
+          tipo, 
+          data, 
+          obs, 
+          horaChegada,
+          saldoDevedorMinutos,
+          status: "Pendente"
         });
 
-        alert("Solicitação enviada com sucesso!");
+        alert("Solicitação enviada ao Admin com sucesso! Aguarde a análise para liberação do ponto.");
         e.target.reset();
+        await verificarSolicitacoesPendentes();
+        atualizarInterface();
+        navegarPara('inicio');
       } catch (err) {
         console.error("Erro ao enviar solicitação:", err);
       }
@@ -479,6 +617,7 @@
     function renderizarTabelaPonto() {
       const tabela = document.getElementById('tabelaHistoricoPonto');
       const dataHoje = new Date().toLocaleDateString('pt-BR');
+      const saldoTxt = registroHoje.saldo_devedor_minutos > 0 ? formatarMinutosParaHoras(registroHoje.saldo_devedor_minutos) : "00:00";
       
       tabela.innerHTML = `
         <tr class="hover:bg-slate-50 transition">
@@ -487,9 +626,10 @@
           <td class="p-4 text-slate-600">${registroHoje.almoco_inicio || '--:--'}</td>
           <td class="p-4 text-slate-600">${registroHoje.almoco_fim || '--:--'}</td>
           <td class="p-4 text-slate-600">${registroHoje.saida || '--:--'}</td>
+          <td class="p-4 font-semibold ${registroHoje.saldo_devedor_minutos > 0 ? 'text-rose-600' : 'text-slate-600'}">${saldoTxt}</td>
           <td class="p-4">
-            <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${registroHoje.entrada ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}">
-              ${registroHoje.saida ? 'Concluído' : (registroHoje.entrada ? 'Em aberto' : 'Pendente')}
+            <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${registroHoje.entrada ? 'bg-emerald-100 text-emerald-700' : (solicitacaoAtrasoPendente ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600')}">
+              ${registroHoje.saida ? 'Concluído' : (registroHoje.entrada ? 'Em aberto' : (solicitacaoAtrasoPendente ? 'Aguardando Admin' : 'Pendente'))}
             </span>
           </td>
         </tr>
@@ -516,13 +656,16 @@
       doc.text(`Colaborador: ${nomeColaborador}`, 14, 33);
       doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, 14, 39);
 
-      const colunas = ["Data", "Entrada", "S. Almoço", "R. Almoço", "Saída"];
+      const colunas = ["Data", "Entrada", "S. Almoço", "R. Almoço", "Saída", "Saldo Devedor"];
+      const saldoTxt = registroHoje.saldo_devedor_minutos > 0 ? formatarMinutosParaHoras(registroHoje.saldo_devedor_minutos) : "00:00";
+      
       const linhas = [[
         new Date().toLocaleDateString('pt-BR'),
         registroHoje.entrada || '--:--',
         registroHoje.almoco_inicio || '--:--',
         registroHoje.almoco_fim || '--:--',
-        registroHoje.saida || '--:--'
+        registroHoje.saida || '--:--',
+        saldoTxt
       ]];
 
       doc.autoTable({
