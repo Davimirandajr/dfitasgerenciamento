@@ -67,12 +67,12 @@
     <!-- USUÁRIO LOGADO & LOGOUT -->
     <div class="p-4 border-t border-dfitas-border flex items-center justify-between">
       <div class="flex items-center gap-3 overflow-hidden">
-        <div class="w-10 h-10 rounded-full bg-dfitas-rosa text-white font-bold flex-shrink-0 flex items-center justify-center shadow-sm">
-          FC
+        <div id="usuarioSigla" class="w-10 h-10 rounded-full bg-dfitas-rosa text-white font-bold flex-shrink-0 flex items-center justify-center shadow-sm uppercase">
+          --
         </div>
         <div class="overflow-hidden">
-          <p class="text-sm font-bold text-slate-800 truncate" id="usuarioNome">Colaborador</p>
-          <p class="text-xs text-slate-500 truncate" id="usuarioEmail">email@dfitas.com</p>
+          <p class="text-sm font-bold text-slate-800 truncate" id="usuarioNome">Carregando...</p>
+          <p class="text-xs text-slate-500 truncate" id="usuarioEmail">--</p>
         </div>
       </div>
       <button onclick="fazerLogout()" title="Sair do sistema" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
@@ -157,7 +157,7 @@
             <div>
               <p class="text-xs text-slate-500 font-medium uppercase">Próximo Turno</p>
               <h3 class="text-lg font-bold text-slate-800 mt-1">Amanhã</h3>
-              <span class="text-xs text-slate-400">07:00 às 16:00</span>
+              <span class="text-xs text-slate-400">08:00 às 18:00</span>
             </div>
             <div class="p-3 bg-dfitas-rosa/10 text-dfitas-rosa rounded-xl"><i data-lucide="calendar-days"></i></div>
           </div>
@@ -173,7 +173,7 @@
               
               <div class="space-y-3">
                 <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100">
-                  <span class="text-slate-600">Entrada (Limite 07:05)</span>
+                  <span class="text-slate-600">Entrada (Limite 08:05)</span>
                   <span class="font-bold text-slate-800" id="txtEntrada">--:--</span>
                 </div>
                 <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100">
@@ -181,7 +181,7 @@
                   <span class="font-bold text-slate-800" id="txtAlmocoInicio">--:--</span>
                 </div>
                 <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100">
-                  <span class="text-slate-600">Fim Almoço</span>
+                  <span class="text-slate-600">Fim Almoço (2h)</span>
                   <span class="font-bold text-slate-800" id="txtAlmocoFim">--:--</span>
                 </div>
                 <div class="flex justify-between items-center text-sm py-2">
@@ -193,7 +193,7 @@
 
             <!-- MENSAGEM / ALERTA DE ATRASO -->
             <div id="alertaAtraso" class="hidden mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-              <p class="font-bold mb-1"><i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i> Horário limite excedido (07:05)!</p>
+              <p class="font-bold mb-1"><i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i> Horário limite excedido (08:05)!</p>
               <p>O batimento direto está bloqueado. Envie uma solicitação para liberação do Admin. As horas em atraso serão contabilizadas como saldo devedor.</p>
             </div>
 
@@ -206,18 +206,18 @@
             <div>
               <h3 class="text-base font-bold text-slate-800 mb-4">Escala da Semana</h3>
               <div class="grid grid-cols-7 gap-2 text-center">
-                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">SEG</p><span class="text-[10px] font-bold text-slate-700 block mt-2">07:00 - 16:00</span></div>
-                <div class="p-2 rounded-xl bg-dfitas-vinho text-white shadow-md"><p class="text-xs font-bold text-dfitas-rosa">TER</p><span class="text-[10px] font-bold block mt-2">07:00 - 16:00</span></div>
-                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">QUA</p><span class="text-[10px] font-bold text-slate-700 block mt-2">07:00 - 16:00</span></div>
-                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">QUI</p><span class="text-[10px] font-bold text-slate-700 block mt-2">07:00 - 16:00</span></div>
-                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">SEX</p><span class="text-[10px] font-bold text-slate-700 block mt-2">07:00 - 16:00</span></div>
-                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50/50 opacity-60"><p class="text-xs font-bold text-slate-400">SÁB</p><span class="text-[10px] font-bold text-slate-400 block py-2">Folga</span></div>
+                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">SEG</p><span class="text-[10px] font-bold text-slate-700 block mt-2">08:00 - 18:00</span></div>
+                <div class="p-2 rounded-xl bg-dfitas-vinho text-white shadow-md"><p class="text-xs font-bold text-dfitas-rosa">TER</p><span class="text-[10px] font-bold block mt-2">08:00 - 18:00</span></div>
+                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">QUA</p><span class="text-[10px] font-bold text-slate-700 block mt-2">08:00 - 18:00</span></div>
+                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">QUI</p><span class="text-[10px] font-bold text-slate-700 block mt-2">08:00 - 18:00</span></div>
+                <div class="p-2 rounded-xl border border-slate-100 bg-slate-50"><p class="text-xs font-bold text-slate-400">SEX</p><span class="text-[10px] font-bold text-slate-700 block mt-2">08:00 - 18:00</span></div>
+                <div class="p-2 rounded-xl border border-amber-200 bg-amber-50/60"><p class="text-xs font-bold text-amber-700">SÁB</p><span class="text-[10px] font-bold text-amber-800 block mt-2">Ver Escala</span></div>
                 <div class="p-2 rounded-xl border border-slate-100 bg-slate-50/50 opacity-60"><p class="text-xs font-bold text-slate-400">DOM</p><span class="text-[10px] font-bold text-slate-400 block py-2">Folga</span></div>
               </div>
             </div>
             <div class="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
-              <i data-lucide="info" class="w-5 h-5 text-dfitas-rosa"></i>
-              <p class="text-xs text-slate-600">Registros gravados em tempo real no banco de dados. Entrada permitida até as 07:05 (tolerância de 5 min).</p>
+              <i data-lucide="info" class="w-5 h-5 text-dfitas-rosa flex-shrink-0"></i>
+              <p class="text-xs text-slate-600">Jornada padrão: 08:00 às 18:00 com 2h de intervalo. Entrada até 08:05 (tolerância de 5 min). Alterações de escala no sábado constam no calendário.</p>
             </div>
           </div>
         </div>
@@ -241,7 +241,7 @@
                 </tr>
               </thead>
               <tbody id="tabelaHistoricoPonto" class="divide-y divide-slate-100 text-sm">
-                <!-- Dinâmico -->
+                <!-- Conteúdo Dinâmico -->
               </tbody>
             </table>
           </div>
@@ -251,11 +251,27 @@
       <!-- ================= ABA 3: ESCALA ================= -->
       <section id="aba-escala" class="aba-conteudo hidden space-y-6">
         <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
-          <h3 class="text-base font-bold text-slate-800 mb-2">Escala Geral do Mês</h3>
-          <p class="text-xs text-slate-500 mb-6">Confira seus turnos de trabalho atribuídos.</p>
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+              <h3 class="text-base font-bold text-slate-800">Escala de Trabalho Mensal</h3>
+              <p class="text-xs text-slate-500">Horário base: 08:00 às 18:00 (2h de almoço). Consulte seus turnos estipulados nos sábados.</p>
+            </div>
+            <div class="px-3 py-1.5 bg-dfitas-vinho/10 text-dfitas-vinho font-bold text-xs rounded-xl" id="lblMesEscala">
+              Escala Oficial
+            </div>
+          </div>
           
-          <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm text-slate-600">
-            Jornada padrão configurada: <strong>07:00 às 16:00</strong> (Segunda a Sexta) - Tolerância de entrada até 07:05.
+          <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 mb-6 flex items-center gap-3">
+            <i data-lucide="calendar" class="w-5 h-5 flex-shrink-0"></i>
+            <span><strong>Atenção para as alterações aos Sábados:</strong> Verifique os dias marcados para o seu grupo de trabalho. As escalas são atualizadas mensalmente.</span>
+          </div>
+
+          <!-- VISÃO CALENDÁRIO SIMULADA -->
+          <div class="grid grid-cols-7 gap-1 sm:gap-2 text-center text-xs font-semibold text-slate-500 mb-2">
+            <div>DOM</div><div>SEG</div><div>TER</div><div>QUA</div><div>QUI</div><div>SEX</div><div class="text-dfitas-vinho">SÁB</div>
+          </div>
+          <div class="grid grid-cols-7 gap-1 sm:gap-2" id="gridCalendarioEscala">
+            <!-- Gerado Dinamicamente -->
           </div>
         </div>
       </section>
@@ -268,7 +284,7 @@
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Solicitação</label>
               <select id="solTipo" class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho">
-                <option value="Liberação de Ponto por Atraso">Liberação de Ponto por Atraso (> 07:05)</option>
+                <option value="Liberação de Ponto por Atraso">Liberação de Ponto por Atraso (> 08:05)</option>
                 <option value="Ajuste de Ponto">Ajuste de Ponto Manual</option>
                 <option value="Solicitação de Férias">Solicitação de Férias</option>
                 <option value="Abono com Atestado">Abono com Atestado</option>
@@ -320,19 +336,44 @@
     let registroHoje = { entrada: null, almoco_inicio: null, almoco_fim: null, saida: null, saldo_devedor_minutos: 0, liberado_pelo_admin: false };
     let solicitacaoAtrasoPendente = false;
 
+    // FORMATAR NOME DO COLABORADOR
+    function obterNomeFormatado(user) {
+      if (user.displayName && user.displayName.trim() !== "") {
+        return user.displayName;
+      }
+      
+      const emailLocal = user.email ? user.email.split('@')[0] : "Colaboradora";
+      return emailLocal
+        .split(/[._-]/)
+        .map(pela => pela.charAt(0).toUpperCase() + pela.slice(1).toLowerCase())
+        .join(' ');
+    }
+
+    function obterSiglaNome(nome) {
+      const partes = nome.trim().split(' ');
+      if (partes.length >= 2) {
+        return (partes[0][0] + partes[1][0]).toUpperCase();
+      }
+      return partes[0].slice(0, 2).toUpperCase();
+    }
+
     // PROTEÇÃO DE ROTA E INICIALIZAÇÃO
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "login.html";
       } else {
         usuarioAtual = user;
-        document.getElementById("usuarioEmail").innerText = user.email;
-        document.getElementById("usuarioNome").innerText = user.email.split('@')[0];
+        const nomeExibicao = obterNomeFormatado(user);
         
-        // Preenche data atual por padrão no form de solicitação
+        document.getElementById("usuarioEmail").innerText = user.email;
+        document.getElementById("usuarioNome").innerText = nomeExibicao;
+        document.getElementById("usuarioSigla").innerText = obterSiglaNome(nomeExibicao);
+        
+        // Preenche data atual por padrão no formulário
         const hojeIso = new Date().toISOString().split('T')[0];
         document.getElementById("solData").value = hojeIso;
 
+        gerarCalendarioEscala();
         await verificarSolicitacoesPendentes();
         await carregarRegistroHoje();
       }
@@ -347,7 +388,7 @@
       }
     };
 
-    // NAVEGAÇÃO SPA (DESKTOP E MOBILE)
+    // NAVEGAÇÃO SPA
     window.navegarPara = function(abaId) {
       document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.add('hidden'));
 
@@ -381,12 +422,11 @@
       lucide.createIcons();
     };
 
-    // RELÓGIO DIGITAL E VALIDAÇÃO DINÂMICA
+    // RELÓGIO DIGITAL
     setInterval(() => {
       const agora = new Date();
       document.getElementById("relogioDigital").innerText = agora.toLocaleTimeString('pt-BR');
       document.getElementById("dataAtual").innerText = agora.toLocaleDateString('pt-BR');
-      
       atualizarInterface();
     }, 1000);
 
@@ -408,8 +448,8 @@
         const querySnap = await getDocs(q);
         solicitacaoAtrasoPendente = false;
 
-        querySnap.forEach(doc => {
-          const data = doc.data();
+        querySnap.forEach(docSnap => {
+          const data = docSnap.data();
           if (data.status === "Pendente") {
             solicitacaoAtrasoPendente = true;
           } else if (data.status === "Aprovado") {
@@ -440,11 +480,11 @@
       }
     }
 
-    // CÁLCULO DE MINUTOS DE ATRASO (A partir do horário oficial: 07:00)
+    // CÁLCULO DE MINUTOS DE ATRASO (A partir do novo horário padrão: 08:00)
     function calcularMinutosAtraso(horaString) {
       const [horas, minutos] = horaString.split(':').map(Number);
       const minutosTotaisEntrada = (horas * 60) + minutos;
-      const minutosTotaisOficial = (7 * 60); // 07:00 -> 420 minutos
+      const minutosTotaisOficial = (8 * 60); // 08:00 -> 480 minutos
 
       if (minutosTotaisEntrada > minutosTotaisOficial) {
         return minutosTotaisEntrada - minutosTotaisOficial;
@@ -468,18 +508,18 @@
       const minuto = agora.getMinutes();
       const horaAtual = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
       const dataAtual = agora.toLocaleDateString('pt-BR');
-      let novoStatus = "Em trabalho";
+      let novoStatus = "Em Trabalho";
 
-      // SE FOR O PRIMEIRO BATIMENTO (ENTRADA)
+      // PRIMEIRO BATIMENTO (ENTRADA)
       if (!registroHoje.entrada) {
-        // Regra de Tolerância: Entrada até as 07:05 sem necessitar do Admin
-        const passouTolerancia = (hora > 7) || (hora === 7 && minuto > 5);
+        // Tolerância: Entrada até as 08:05 sem necessitar do Admin
+        const passouTolerancia = (hora > 8) || (hora === 8 && minuto > 5);
 
         if (passouTolerancia && !registroHoje.liberado_pelo_admin) {
           if (solicitacaoAtrasoPendente) {
-            alert("Sua solicitação de liberação por atraso já foi enviada e está em análise pelo Admin. Aguarde a aprovação!");
+            alert("Sua solicitação de liberação por atraso já foi enviada e está em análise pelo Admin.");
           } else {
-            if (confirm("Você ultrapassou o horário limite (07:05). Deseja ir para a página de solicitações enviar o pedido de liberação para o Admin?")) {
+            if (confirm("Você ultrapassou o horário limite (08:05). Deseja ir para a página de solicitações enviar o pedido de liberação para o Admin?")) {
               document.getElementById("solHoraChegada").value = horaAtual;
               navegarPara('solicitacoes');
             }
@@ -496,9 +536,10 @@
       else return;
 
       try {
+        const nomeFormatado = obterNomeFormatado(usuarioAtual);
         await setDoc(doc(db, "registros_ponto", getIdHoje()), {
           uid: usuarioAtual.uid,
-          nome: usuarioAtual.email.split('@')[0],
+          nome: nomeFormatado,
           email: usuarioAtual.email,
           data: dataAtual,
           ...registroHoje,
@@ -524,7 +565,6 @@
       const cardBancoHoras = document.getElementById("cardBancoHoras");
       const lblBancoHoras = document.getElementById("lblBancoHoras");
 
-      // Atualiza Card Banco de Horas / Saldo Devedor
       if (registroHoje.saldo_devedor_minutos > 0) {
         cardBancoHoras.innerText = formatarMinutosParaHoras(registroHoje.saldo_devedor_minutos);
         cardBancoHoras.className = "text-2xl font-bold mt-1 text-rose-600";
@@ -540,7 +580,7 @@
       const agora = new Date();
       const hora = agora.getHours();
       const minuto = agora.getMinutes();
-      const passouTolerancia = (hora > 7) || (hora === 7 && minuto > 5);
+      const passouTolerancia = (hora > 8) || (hora === 8 && minuto > 5);
 
       if (!registroHoje.entrada) { 
         if (passouTolerancia && !registroHoje.liberado_pelo_admin) {
@@ -592,9 +632,10 @@
       }
 
       try {
+        const nomeFormatado = obterNomeFormatado(usuarioAtual);
         await addDoc(collection(db, "solicitacoes"), {
           uid: usuarioAtual.uid,
-          nome: usuarioAtual.email.split('@')[0],
+          nome: nomeFormatado,
           email: usuarioAtual.email,
           tipo, 
           data, 
@@ -604,7 +645,7 @@
           status: "Pendente"
         });
 
-        alert("Solicitação enviada ao Admin com sucesso! Aguarde a análise para liberação do ponto.");
+        alert("Solicitação enviada ao Admin com sucesso! Aguarde a análise para liberação.");
         e.target.reset();
         await verificarSolicitacoesPendentes();
         atualizarInterface();
@@ -619,66 +660,118 @@
       const dataHoje = new Date().toLocaleDateString('pt-BR');
       const saldoTxt = registroHoje.saldo_devedor_minutos > 0 ? formatarMinutosParaHoras(registroHoje.saldo_devedor_minutos) : "00:00";
       
-      tabela.innerHTML = `
-        <tr class="hover:bg-slate-50 transition">
-          <td class="p-4 font-bold text-slate-800">${dataHoje}</td>
-          <td class="p-4 text-slate-600">${registroHoje.entrada || '--:--'}</td>
-          <td class="p-4 text-slate-600">${registroHoje.almoco_inicio || '--:--'}</td>
-          <td class="p-4 text-slate-600">${registroHoje.almoco_fim || '--:--'}</td>
-          <td class="p-4 text-slate-600">${registroHoje.saida || '--:--'}</td>
+      let html = `
+        <tr class="hover:bg-slate-50">
+          <td class="p-4 font-bold text-slate-700">${dataHoje} (Hoje)</td>
+          <td class="p-4">${registroHoje.entrada || '--:--'}</td>
+          <td class="p-4">${registroHoje.almoco_inicio || '--:--'}</td>
+          <td class="p-4">${registroHoje.almoco_fim || '--:--'}</td>
+          <td class="p-4">${registroHoje.saida || '--:--'}</td>
           <td class="p-4 font-semibold ${registroHoje.saldo_devedor_minutos > 0 ? 'text-rose-600' : 'text-slate-600'}">${saldoTxt}</td>
           <td class="p-4">
-            <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${registroHoje.entrada ? 'bg-emerald-100 text-emerald-700' : (solicitacaoAtrasoPendente ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600')}">
-              ${registroHoje.saida ? 'Concluído' : (registroHoje.entrada ? 'Em aberto' : (solicitacaoAtrasoPendente ? 'Aguardando Admin' : 'Pendente'))}
+            <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg">
+              ${registroHoje.status || 'Pendente'}
             </span>
           </td>
         </tr>
       `;
+      tabela.innerHTML = html;
     }
 
-    // EXPORTAR ESPELHO PDF
+    // GERAÇÃO DO CALENDÁRIO DE ESCALA DO MÊS
+    function gerarCalendarioEscala() {
+      const container = document.getElementById('gridCalendarioEscala');
+      if (!container) return;
+
+      const agora = new Date();
+      const ano = agora.getFullYear();
+      const mes = agora.getMonth();
+
+      const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+      document.getElementById('lblMesEscala').innerText = `${nomesMeses[mes]} / ${ano}`;
+
+      const primeiroDia = new Date(ano, mes, 1).getDay();
+      const totalDias = new Date(ano, mes + 1, 0).getDate();
+
+      let html = '';
+
+      // Espaços em branco antes do primeiro dia
+      for (let i = 0; i < primeiroDia; i++) {
+        html += `<div class="h-20 sm:h-24 bg-slate-50/40 rounded-xl border border-dashed border-slate-100"></div>`;
+      }
+
+      // Dias do Mês
+      for (let dia = 1; dia <= totalDias; dia++) {
+        const dataDia = new Date(ano, mes, dia);
+        const diaSemana = dataDia.getDay(); // 0 = Dom, 6 = Sáb
+        const ehHoje = dia === agora.getDate();
+
+        let estiloDia = "bg-white border-slate-100";
+        let etiqueta = `<span class="text-[10px] text-slate-500 block">08:00 - 18:00</span>`;
+
+        if (ehHoje) {
+          estiloDia = "bg-dfitas-vinho/5 border-dfitas-vinho ring-2 ring-dfitas-vinho/20";
+        }
+
+        if (diaSemana === 0) {
+          // Domingo
+          etiqueta = `<span class="text-[10px] text-rose-500 font-semibold block">Folga</span>`;
+        } else if (diaSemana === 6) {
+          // Sábado
+          etiqueta = `<span class="text-[10px] text-amber-600 font-bold block">Escala Especial</span>`;
+          estiloDia = ehHoje ? estiloDia : "bg-amber-50/50 border-amber-200";
+        }
+
+        html += `
+          <div class="h-20 sm:h-24 p-2 rounded-xl border ${estiloDia} flex flex-col justify-between text-left transition hover:shadow-sm">
+            <span class="text-xs font-bold ${ehHoje ? 'text-dfitas-vinho' : 'text-slate-700'}">${dia}</span>
+            <div>${etiqueta}</div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // PDF ESPELHO DE PONTO
     window.baixarEspelhoPontoPDF = function() {
+      if (!usuarioAtual) return;
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      
-      doc.setFillColor(138, 16, 44); 
-      doc.rect(0, 0, 210, 25, 'F');
-      
-      doc.setTextColor(255, 255, 255); 
-      doc.setFontSize(14); 
-      doc.setFont('helvetica', 'bold');
-      doc.text("DFitas | Espelho de Ponto Individual", 14, 16);
+      const docPdf = new jsPDF();
 
-      const nomeColaborador = usuarioAtual ? usuarioAtual.email.split('@')[0] : 'Colaborador';
-      doc.setTextColor(50, 50, 50);
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Colaborador: ${nomeColaborador}`, 14, 33);
-      doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, 14, 39);
+      const nomeColaborador = obterNomeFormatado(usuarioAtual);
 
-      const colunas = ["Data", "Entrada", "S. Almoço", "R. Almoço", "Saída", "Saldo Devedor"];
-      const saldoTxt = registroHoje.saldo_devedor_minutos > 0 ? formatarMinutosParaHoras(registroHoje.saldo_devedor_minutos) : "00:00";
-      
-      const linhas = [[
-        new Date().toLocaleDateString('pt-BR'),
-        registroHoje.entrada || '--:--',
-        registroHoje.almoco_inicio || '--:--',
-        registroHoje.almoco_fim || '--:--',
-        registroHoje.saida || '--:--',
-        saldoTxt
-      ]];
+      docPdf.setFontSize(16);
+      docPdf.setTextColor(138, 16, 44);
+      docPdf.text("DFitas - Espelho de Ponto Individual", 14, 20);
 
-      doc.autoTable({
-        startY: 45,
-        head: [colunas],
-        body: linhas,
+      docPdf.setFontSize(10);
+      docPdf.setTextColor(100);
+      docPdf.text(`Colaborador(a): ${nomeColaborador}`, 14, 28);
+      docPdf.text(`E-mail: ${usuarioAtual.email}`, 14, 34);
+      docPdf.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, 14, 40);
+
+      const dadosTabela = [
+        [
+          new Date().toLocaleDateString('pt-BR'),
+          registroHoje.entrada || '--:--',
+          registroHoje.almoco_inicio || '--:--',
+          registroHoje.almoco_fim || '--:--',
+          registroHoje.saida || '--:--',
+          registroHoje.saldo_devedor_minutos > 0 ? formatarMinutosParaHoras(registroHoje.saldo_devedor_minutos) : "00:00",
+          registroHoje.status || 'Sem registro'
+        ]
+      ];
+
+      docPdf.autoTable({
+        startY: 46,
+        head: [['Data', 'Entrada', 'Ini. Almoço', 'Fim Almoço', 'Saída', 'Atraso/Saldo', 'Status']],
+        body: dadosTabela,
         headStyles: { fillColor: [138, 16, 44] }
       });
 
-      doc.save(`Espelho_Ponto_${nomeColaborador}.pdf`);
+      docPdf.save(`Espelho_Ponto_${nomeColaborador.replace(/\s+/g, '_')}.pdf`);
     };
-
-    lucide.createIcons();
   </script>
 </body>
 </html>
