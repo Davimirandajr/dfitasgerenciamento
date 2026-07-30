@@ -55,10 +55,10 @@
           <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
         </button>
         <button onclick="navegarAdmin('funcionarios')" id="nav-funcionarios" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
-          <i data-lucide="users" class="w-5 h-5"></i> Funcionários
+          <i data-lucide="users" class="w-5 h-5"></i> Equipe
         </button>
         <button onclick="navegarAdmin('escalas')" id="nav-escalas" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
-          <i data-lucide="calendar" class="w-5 h-5"></i> Escalas & Turnos
+          <i data-lucide="calendar" class="w-5 h-5"></i> Painel de Escalas
         </button>
         <button onclick="navegarAdmin('registros')" id="nav-registros" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-100 transition">
           <i data-lucide="clock" class="w-5 h-5"></i> Registros de Ponto
@@ -72,11 +72,11 @@
     <!-- USUÁRIO ADMIN & LOGOUT -->
     <div class="p-4 border-t border-dfitas-border flex items-center justify-between">
       <div class="flex items-center gap-3 overflow-hidden">
-        <div class="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0 flex items-center justify-center font-bold text-slate-600">
+        <div class="w-10 h-10 rounded-full bg-dfitas-vinho text-white flex-shrink-0 flex items-center justify-center font-bold">
           AD
         </div>
         <div class="overflow-hidden">
-          <p class="text-sm font-bold text-slate-800 truncate" id="adminNome">Administrador</p>
+          <p class="text-sm font-bold text-slate-800 truncate" id="adminNome">Diretoria DFitas</p>
           <p class="text-xs text-slate-500 truncate" id="adminEmail">admin@dfitas.com</p>
         </div>
       </div>
@@ -112,11 +112,6 @@
       <i data-lucide="file-check-2" class="w-5 h-5 mb-0.5"></i>
       <span>Pedidos</span>
       <span class="absolute top-1 right-3 bg-dfitas-rosa text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-bold badge-solicitacoes" id="badgeSolicitacoesMob">0</span>
-    </button>
-    
-    <button onclick="fazerLogout()" class="flex flex-col items-center justify-center text-rose-500 text-[10px] font-medium w-full py-1.5 transition">
-      <i data-lucide="log-out" class="w-5 h-5 mb-0.5"></i>
-      <span>Sair</span>
     </button>
   </nav>
 
@@ -157,20 +152,20 @@
 
           <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
             <div>
-              <p class="text-xs text-slate-500 font-medium uppercase">Status Firestore</p>
-              <h3 class="text-lg font-bold text-emerald-600 mt-1">Conectado</h3>
-              <span class="text-xs text-slate-400">dfitas-gerenciamento</span>
+              <p class="text-xs text-slate-500 font-medium uppercase">Horário Padrão</p>
+              <h3 class="text-lg font-bold text-dfitas-vinho mt-1">08:00 - 18:00</h3>
+              <span class="text-xs text-slate-400">2h de almoço</span>
             </div>
-            <div class="p-3 bg-slate-100 text-slate-600 rounded-xl"><i data-lucide="database"></i></div>
+            <div class="p-3 bg-slate-100 text-slate-600 rounded-xl"><i data-lucide="clock"></i></div>
           </div>
 
           <div class="bg-white p-5 rounded-2xl border border-dfitas-border shadow-sm flex items-center justify-between">
             <div>
-              <p class="text-xs text-slate-500 font-medium uppercase">Horas Registradas Hoje</p>
-              <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="totalHorasHoje">00:00</h3>
-              <span class="text-xs text-emerald-600 font-medium">Acumulado do dia</span>
+              <p class="text-xs text-slate-500 font-medium uppercase">Alterações de Escala</p>
+              <h3 class="text-2xl font-bold text-amber-600 mt-1" id="totalEscalasAtivas">0</h3>
+              <span class="text-xs text-amber-600 font-medium">Exceções cadastradas</span>
             </div>
-            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="clock"></i></div>
+            <div class="p-3 bg-amber-50 text-amber-600 rounded-xl"><i data-lucide="calendar-range"></i></div>
           </div>
         </div>
 
@@ -179,7 +174,7 @@
           <div class="p-6 border-b border-dfitas-border flex justify-between items-center">
             <div>
               <h3 class="text-base font-bold text-slate-800">Registros do Dia em Tempo Real</h3>
-              <p class="text-xs text-slate-500">Batimentos gravados pelos funcionários via Firebase</p>
+              <p class="text-xs text-slate-500">Batimentos gravados pelas funcionárias via Firebase</p>
             </div>
             <span class="flex items-center gap-2 text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Firebase Sync
@@ -190,7 +185,7 @@
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50 border-b border-dfitas-border text-xs font-semibold text-slate-500 uppercase">
-                  <th class="p-4">Funcionário</th>
+                  <th class="p-4">Funcionária</th>
                   <th class="p-4">Data</th>
                   <th class="p-4">Entrada</th>
                   <th class="p-4">Saída Almoço</th>
@@ -209,47 +204,132 @@
 
       <!-- ================= ABA 2: FUNCIONÁRIOS ================= -->
       <section id="aba-funcionarios" class="aba-admin hidden space-y-6">
-        <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
-          <h3 class="text-base font-bold text-slate-800 mb-4">Gestão de Colaboradores</h3>
-          <p class="text-xs text-slate-500 mb-6">Cadastros e contas ativas no sistema.</p>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-slate-50 border-b border-dfitas-border text-xs font-semibold text-slate-500 uppercase">
-                  <th class="p-4">Nome</th>
-                  <th class="p-4">E-mail</th>
-                  <th class="p-4">Cargo</th>
-                  <th class="p-4">Status</th>
-                </tr>
-              </thead>
-              <tbody id="tabelaFuncionarios" class="divide-y divide-slate-100 text-sm">
-                <tr>
-                  <td class="p-4 font-bold text-slate-800">Equipe DFitas</td>
-                  <td class="p-4 text-slate-600">colaborador@dfitas.com</td>
-                  <td class="p-4 text-slate-600">Operacional / Vendas</td>
-                  <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">Ativo</span></td>
-                </tr>
-              </tbody>
-            </table>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- FORMULARIO NOVO USER -->
+          <div class="bg-white p-6 rounded-2xl border border-dfitas-border shadow-sm h-fit">
+            <h3 class="text-base font-bold text-slate-800 mb-2">Cadastrar Novo Usuário</h3>
+            <p class="text-xs text-slate-500 mb-4">Adicione novas funcionárias ao sistema.</p>
+
+            <form onsubmit="cadastrarFuncionario(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Nome Completo</label>
+                <input type="text" id="cadNome" placeholder="Ex: Maria Clara" required class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">E-mail de Acesso</label>
+                <input type="email" id="cadEmail" placeholder="maria@dfitas.com" required class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Cargo</label>
+                <input type="text" id="cadCargo" value="Atendimento / Vendas" required class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
+              </div>
+              <button type="submit" class="w-full py-3 bg-dfitas-vinho text-white font-bold text-sm rounded-xl hover:bg-dfitas-vinho/90 transition flex items-center justify-center gap-2">
+                <i data-lucide="user-plus" class="w-4 h-4"></i> Cadastrar
+              </button>
+            </form>
           </div>
+
+          <!-- TABELA DA EQUIPE BASE -->
+          <div class="lg:col-span-2 bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
+            <h3 class="text-base font-bold text-slate-800 mb-1">Equipe DFitas</h3>
+            <p class="text-xs text-slate-500 mb-6">Horário de trabalho padrão: <strong>08:00 às 18:00</strong> (2h de almoço)</p>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-dfitas-border text-xs font-semibold text-slate-500 uppercase">
+                    <th class="p-4">Nome</th>
+                    <th class="p-4">E-mail</th>
+                    <th class="p-4">Cargo</th>
+                    <th class="p-4">Turno Padrão</th>
+                    <th class="p-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tabelaFuncionarios" class="divide-y divide-slate-100 text-sm">
+                  <!-- Carregado via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </section>
 
-      <!-- ================= ABA 3: ESCALAS & TURNOS ================= -->
+      <!-- ================= ABA 3: ESCALAS & ALTERAÇÕES (PAINEL ADMIN) ================= -->
       <section id="aba-escalas" class="aba-admin hidden space-y-6">
-        <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
-          <h3 class="text-base font-bold text-slate-800 mb-2">Escalas de Trabalho</h3>
-          <p class="text-xs text-slate-500 mb-6">Horários previstos por equipe.</p>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
-              <h4 class="font-bold text-slate-800 text-sm">Comercial</h4>
-              <p class="text-xs text-slate-500 mt-1">07:00 às 16:00 (Segunda a Sexta)</p>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- PAINEL DE ADIÇÃO DE ALTERAÇÃO DE ESCALA -->
+          <div class="bg-white p-6 rounded-2xl border border-dfitas-border shadow-sm h-fit">
+            <h3 class="text-base font-bold text-slate-800 mb-1">Gerenciar Escala / Exceção</h3>
+            <p class="text-xs text-slate-500 mb-4">Lance folgas, atestados e alterações pontuais.</p>
+
+            <form onsubmit="salvarEscalaExcecao(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Funcionária</label>
+                <select id="escFuncionario" required class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho">
+                  <option value="Bruna">Bruna</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="Elen">Elen</option>
+                  <option value="Alessandra">Alessandra</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Data da Alteração</label>
+                <input type="date" id="escData" required class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Evento</label>
+                <select id="escTipo" required class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho">
+                  <option value="Horário Diferenciado">Horário Diferenciado</option>
+                  <option value="Abono com Atestado">Abono com Atestado</option>
+                  <option value="Folga Programada">Folga Programada</option>
+                  <option value="Troca de Turno">Troca de Turno</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Horário/Detalhes da Alteração</label>
+                <input type="text" id="escHorario" placeholder="Ex: 09:00 às 17:00 ou Atestado Medico" required class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-dfitas-vinho" />
+              </div>
+
+              <button type="submit" class="w-full py-3 bg-dfitas-vinho text-white font-bold text-sm rounded-xl hover:bg-dfitas-vinho/90 transition flex items-center justify-center gap-2">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Publicar Alteração
+              </button>
+            </form>
+          </div>
+
+          <!-- PAINEL VISÍVEL DAS ESCALAS LANÇADAS -->
+          <div class="lg:col-span-2 bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-800">Quadro de Escalas do Mês</h3>
+                <p class="text-xs text-slate-500">Este painel é visível para todas as funcionárias no app.</p>
+              </div>
+              <span class="px-3 py-1 bg-dfitas-vinho/10 text-dfitas-vinho font-semibold text-xs rounded-full">Exceções & Ajustes</span>
             </div>
-            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
-              <h4 class="font-bold text-slate-800 text-sm">Operacional</h4>
-              <p class="text-xs text-slate-500 mt-1">08:00 às 17:00 (Segunda a Sexta)</p>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-dfitas-border text-xs font-semibold text-slate-500 uppercase">
+                    <th class="p-4">Funcionária</th>
+                    <th class="p-4">Data</th>
+                    <th class="p-4">Tipo</th>
+                    <th class="p-4">Escala Ajustada / Obs</th>
+                    <th class="p-4 text-center">Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="tabelaPainelEscalas" class="divide-y divide-slate-100 text-sm">
+                  <tr><td colspan="5" class="p-4 text-center text-slate-400">Carregando painel de escalas...</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
+
         </div>
       </section>
 
@@ -257,9 +337,9 @@
       <section id="aba-registros" class="aba-admin hidden space-y-6">
         <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
           <h3 class="text-base font-bold text-slate-800 mb-2">Histórico de Espelhos de Ponto</h3>
-          <p class="text-xs text-slate-500 mb-4">Acompanhamento dos registros enviados pelo aplicativo.</p>
+          <p class="text-xs text-slate-500 mb-4">Auditoria e conferência de registros efetuados.</p>
           <div id="historicoGeralPonto" class="text-sm text-slate-600">
-            Sincronizado diretamente com a coleção <code>registros_ponto</code>.
+            Os registros são sincronizados em tempo real com a coleção <code>registros_ponto</code>.
           </div>
         </div>
       </section>
@@ -267,20 +347,21 @@
       <!-- ================= ABA 5: SOLICITAÇÕES ================= -->
       <section id="aba-solicitacoes" class="aba-admin hidden space-y-6">
         <div class="bg-white rounded-2xl border border-dfitas-border shadow-sm p-6">
-          <h3 class="text-base font-bold text-slate-800 mb-4">Solicitações dos Colaboradores</h3>
+          <h3 class="text-base font-bold text-slate-800 mb-4">Solicitações das Funcionárias</h3>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50 border-b border-dfitas-border text-xs font-semibold text-slate-500 uppercase">
-                  <th class="p-4">Funcionário</th>
+                  <th class="p-4">Funcionária</th>
                   <th class="p-4">Tipo</th>
-                  <th class="p-4">Data</th>
+                  <th class="p-4">Data Solicitada</th>
                   <th class="p-4">Justificativa</th>
                   <th class="p-4">Status</th>
+                  <th class="p-4 text-center">Ações Admin</th>
                 </tr>
               </thead>
               <tbody id="tabelaSolicitacoesAdmin" class="divide-y divide-slate-100 text-sm">
-                <tr><td colspan="5" class="p-4 text-center text-slate-400">Buscando solicitações...</td></tr>
+                <tr><td colspan="6" class="p-4 text-center text-slate-400">Buscando solicitações...</td></tr>
               </tbody>
             </table>
           </div>
@@ -294,7 +375,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB96jQgvX8nvBKcQGjgIHYzVCUkaFl_n_s",
@@ -310,6 +391,14 @@
     const db = getFirestore(app);
 
     let dadosPontosPDF = [];
+
+    // Equipe Base Fixa
+    const equipeFixa = [
+      { nome: "Bruna", email: "bruna@dfitas.com", cargo: "Vendas / Atendimento", status: "Ativa" },
+      { nome: "Georgia", email: "georgia@dfitas.com", cargo: "Vendas / Atendimento", status: "Ativa" },
+      { nome: "Elen", email: "elen@dfitas.com", cargo: "Caixa / Operacional", status: "Ativa" },
+      { nome: "Alessandra", email: "alessandra@dfitas.com", cargo: "Estoque / Vendas", status: "Ativa" }
+    ];
 
     // PROTEÇÃO DE ROTA
     onAuthStateChanged(auth, (user) => {
@@ -329,35 +418,29 @@
       }
     };
 
-    // NAVEGAÇÃO SPA ADMIN (COM SUPORTE AO MOBILE)
+    // NAVEGAÇÃO SPA ADMIN
     window.navegarAdmin = function(abaId) {
-      // Esconde todas as abas
       document.querySelectorAll('.aba-admin').forEach(el => el.classList.add('hidden'));
 
-      // Reseta botões Desktop
       document.querySelectorAll('.nav-btn').forEach(el => {
         el.classList.remove('bg-dfitas-vinho/10', 'text-dfitas-vinho');
         el.classList.add('text-slate-600');
       });
 
-      // Reseta botões Mobile
       document.querySelectorAll('.nav-btn-mob').forEach(el => {
         el.classList.remove('text-dfitas-vinho', 'font-semibold');
         el.classList.add('text-slate-500', 'font-medium');
       });
 
-      // Ativa aba
       const aba = document.getElementById(`aba-${abaId}`);
       if (aba) aba.classList.remove('hidden');
 
-      // Ativa botão Desktop
       const btnAtivo = document.getElementById(`nav-${abaId}`);
       if (btnAtivo) {
         btnAtivo.classList.add('bg-dfitas-vinho/10', 'text-dfitas-vinho');
         btnAtivo.classList.remove('text-slate-600');
       }
 
-      // Ativa botão Mobile
       const btnMobAtivo = document.getElementById(`nav-mob-${abaId}`);
       if (btnMobAtivo) {
         btnMobAtivo.classList.add('text-dfitas-vinho', 'font-semibold');
@@ -366,8 +449,8 @@
 
       const titulos = {
         dashboard: 'Dashboard Overview',
-        funcionarios: 'Gestão de Funcionários',
-        escalas: 'Escalas e Turnos',
+        funcionarios: 'Gestão de Funcionárias',
+        escalas: 'Painel de Escalas (Admin)',
         registros: 'Espelhos de Ponto',
         solicitacoes: 'Aprovação de Solicitações'
       };
@@ -375,10 +458,111 @@
       lucide.createIcons();
     };
 
-    // ESCUTAR REGISTROS EM TEMPO REAL NO FIREBASE
+    // TABELA FUNCIONÁRIOS
+    function renderizarTabelaFuncionarios() {
+      const tabela = document.getElementById("tabelaFuncionarios");
+      tabela.innerHTML = "";
+
+      equipeFixa.forEach(f => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition";
+        tr.innerHTML = `
+          <td class="p-4 font-bold text-slate-800">${f.nome}</td>
+          <td class="p-4 text-slate-600">${f.email}</td>
+          <td class="p-4 text-slate-600">${f.cargo}</td>
+          <td class="p-4 text-slate-600 font-medium">08:00 às 18:00 (2h Almoço)</td>
+          <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">${f.status}</span></td>
+        `;
+        tabela.appendChild(tr);
+      });
+    }
+
+    // CADASTRAR NOVO USUÁRIO
+    window.cadastrarFuncionario = async function(e) {
+      e.preventDefault();
+      const nome = document.getElementById('cadNome').value;
+      const email = document.getElementById('cadEmail').value;
+      const cargo = document.getElementById('cadCargo').value;
+
+      try {
+        await addDoc(collection(db, "funcionarios"), { nome, email, cargo, criadoEm: new Date() });
+        equipeFixa.push({ nome, email, cargo, status: "Ativa" });
+        renderizarTabelaFuncionarios();
+        alert(`Funcionária ${nome} cadastrada com sucesso!`);
+        e.target.reset();
+      } catch (err) {
+        console.error("Erro ao cadastrar funcionária:", err);
+      }
+    };
+
+    // ESCUTAR E GERENCIAR PAINEL DE ESCALAS (ADMIN)
+    function escutarEscalas() {
+      const q = query(collection(db, "escalas"));
+      onSnapshot(q, (snapshot) => {
+        const tabela = document.getElementById("tabelaPainelEscalas");
+        tabela.innerHTML = "";
+        
+        document.getElementById("totalEscalasAtivas").innerText = snapshot.size;
+
+        if (snapshot.empty) {
+          tabela.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Nenhuma alteração de escala configurada.</td></tr>`;
+          return;
+        }
+
+        snapshot.forEach((docSnap) => {
+          const esc = docSnap.data();
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50 transition";
+          tr.innerHTML = `
+            <td class="p-4 font-bold text-slate-800">${esc.funcionario}</td>
+            <td class="p-4 text-slate-600">${esc.data}</td>
+            <td class="p-4 text-slate-600"><span class="px-2 py-0.5 text-xs rounded bg-slate-100 font-semibold">${esc.tipo}</span></td>
+            <td class="p-4 font-medium text-dfitas-vinho">${esc.horario}</td>
+            <td class="p-4 text-center">
+              <button onclick="removerEscala('${docSnap.id}')" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition" title="Excluir Alteração">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </td>
+          `;
+          tabela.appendChild(tr);
+        });
+        lucide.createIcons();
+      });
+    }
+
+    // SALVAR NOVA ALTERAÇÃO DE ESCALA
+    window.salvarEscalaExcecao = async function(e) {
+      e.preventDefault();
+      const funcionario = document.getElementById("escFuncionario").value;
+      const data = document.getElementById("escData").value;
+      const tipo = document.getElementById("escTipo").value;
+      const horario = document.getElementById("escHorario").value;
+
+      try {
+        await addDoc(collection(db, "escalas"), {
+          funcionario, data, tipo, horario, atualizadoEm: new Date()
+        });
+        alert("Alteração de escala publicada!");
+        e.target.reset();
+      } catch (err) {
+        console.error("Erro ao salvar escala:", err);
+      }
+    };
+
+    // EXCLUIR ESCALA
+    window.removerEscala = async function(id) {
+      if (confirm("Tem certeza que deseja remover esta alteração de escala?")) {
+        try {
+          await deleteDoc(doc(db, "escalas", id));
+        } catch (err) {
+          console.error("Erro ao remover escala:", err);
+        }
+      }
+    };
+
+    // ESCUTAR REGISTROS EM TEMPO REAL
     function escutarPontosLive() {
       const q = query(collection(db, "registros_ponto"));
-      
       onSnapshot(q, (snapshot) => {
         const tabela = document.getElementById("tabelaPontosLive");
         tabela.innerHTML = "";
@@ -400,7 +584,7 @@
           const tr = document.createElement("tr");
           tr.className = "hover:bg-slate-50/80 transition";
           tr.innerHTML = `
-            <td class="p-4 font-bold text-slate-800">${item.nome || 'Funcionário'}</td>
+            <td class="p-4 font-bold text-slate-800">${item.nome || 'Funcionária'}</td>
             <td class="p-4 text-slate-600">${item.data || '--'}</td>
             <td class="p-4 text-slate-600 font-medium">${item.entrada || '--:--'}</td>
             <td class="p-4 text-slate-600">${item.almoco_inicio || '--:--'}</td>
@@ -421,7 +605,7 @@
       });
     }
 
-    // ESCUTAR SOLICITAÇÕES
+    // ESCUTAR SOLICITAÇÕES COM AÇÕES DE APROVAÇÃO
     function escutarSolicitacoes() {
       const q = query(collection(db, "solicitacoes"));
 
@@ -435,7 +619,7 @@
         if (badgeMob) badgeMob.innerText = snapshot.size;
 
         if (snapshot.empty) {
-          tabela.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Nenhuma solicitação no momento.</td></tr>`;
+          tabela.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma solicitação no momento.</td></tr>`;
           return;
         }
 
@@ -443,18 +627,42 @@
           const item = docSnap.data();
           const tr = document.createElement("tr");
           tr.className = "hover:bg-slate-50 transition";
+          
+          let statusBadge = 'bg-amber-100 text-amber-700';
+          if(item.status === 'Aprovado') statusBadge = 'bg-emerald-100 text-emerald-700';
+          if(item.status === 'Rejeitado') statusBadge = 'bg-rose-100 text-rose-700';
+
           tr.innerHTML = `
-            <td class="p-4 font-bold text-slate-800">${item.nome || 'Funcionário'}</td>
+            <td class="p-4 font-bold text-slate-800">${item.nome || 'Funcionária'}</td>
             <td class="p-4 text-slate-600">${item.tipo || 'Ajuste'}</td>
             <td class="p-4 text-slate-600">${item.data || '--'}</td>
             <td class="p-4 text-slate-600 text-xs">${item.obs || '-'}</td>
-            <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-700">${item.status || 'Pendente'}</span></td>
+            <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full ${statusBadge}">${item.status || 'Pendente'}</span></td>
+            <td class="p-4 text-center">
+              <div class="flex justify-center gap-2">
+                <button onclick="atualizarSolicitacao('${docSnap.id}', 'Aprovado')" class="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition" title="Aprovar">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+                <button onclick="atualizarSolicitacao('${docSnap.id}', 'Rejeitado')" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition" title="Rejeitar">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </td>
           `;
           tabela.appendChild(tr);
         });
         lucide.createIcons();
       });
     }
+
+    // APROVAR OU REJEITAR SOLICITAÇÃO
+    window.atualizarSolicitacao = async function(id, novoStatus) {
+      try {
+        await updateDoc(doc(db, "solicitacoes", id), { status: novoStatus });
+      } catch (err) {
+        console.error("Erro ao atualizar solicitação:", err);
+      }
+    };
 
     // GERAR RELATÓRIO PDF
     window.gerarRelatorioPDF = function () {
@@ -480,7 +688,7 @@
       doc.setFont('helvetica', 'normal');
       doc.text(`Emissão: ${dataEmissao}`, 14, 33);
 
-      const colunas = ["Funcionário", "Data", "Entrada", "S. Almoço", "R. Almoço", "Saída", "Status"];
+      const colunas = ["Funcionária", "Data", "Entrada", "S. Almoço", "R. Almoço", "Saída", "Status"];
       const linhas = dadosPontosPDF.map(item => [
         item.nome || '',
         item.data || '',
@@ -502,6 +710,8 @@
     };
 
     // Inicializações
+    renderizarTabelaFuncionarios();
+    escutarEscalas();
     escutarPontosLive();
     escutarSolicitacoes();
     lucide.createIcons();
